@@ -1,13 +1,13 @@
 [
 {
-  "modid": "JoypadSplitscreenMod",
-  "name": "Joypad / SplitScreen Mod",
-  "version": "1.8-0.1",
-  "description": "Play Minecraft splitscreen using gamepad controllers!!",
-  "url": "http://retro-hack.blogspot.com/p/minecraft-joypad-mod.html",
-  "updateUrl": "github.com/ljsimin/MinecraftJoypadSplitscreenMod",  
-  "credits": "Forge, FML, MCP & everyone at Mojang",
+  "modid": "MineLeapMod",
+  "name": "MineLeap Mod",
+  "version": "1.8-0.0.1",
+  "description": "Play Minecraft using LeapMotion.",
+  "url": "",
+  "updateUrl": "",
+  "credits": "ljsimin and ahickey from MinecraftJoypadSplitscreenMod project",
   "logoFile": "",
-  "authors": ["Freeshiny", "Eastsider"]
+  "authors": ["Nautigsam"]
 }
 ]
