@@ -18,6 +18,7 @@ import com.nautigsam.mineleapmod.helpers.McGuiHelper;
 import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
 import com.nautigsam.mineleapmod.minecraftExtensions.JoypadMouseHelper;
 
+import com.leapmotion.leap.Controller;
 
 @Mod(modid = MineLeapMod.MODID, name = MineLeapMod.NAME, version = ModVersionHelper.VERSION + "-" + MineLeapMod.MINVERSION
 		+ MineLeapMod.REVISION)
@@ -38,6 +39,13 @@ public class MineLeapMod
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		LogHelper.Info("preInit");
+		try	{
+			LogHelper.Info("Initializing controller");
+			Controller controller = new Controller();
+		} catch (Exception ex) {
+			LogHelper.Error("Exception initializing controller");
+			ex.printStackTrace();
+		}
 		controllerSettings = new ControllerSettings(event.getSuggestedConfigurationFile());
 	}
 
