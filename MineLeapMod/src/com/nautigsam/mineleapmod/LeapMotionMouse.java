@@ -1,5 +1,6 @@
 package com.nautigsam.mineleapmod;
 
+import net.minecraft.client.Minecraft;
 import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Listener;
 import com.leapmotion.leap.Frame;
@@ -10,6 +11,8 @@ import com.nautigsam.mineleapmod.helpers.LogHelper;
 import com.nautigsam.mineleapmod.ControllerSettings;
 
 public class LeapMotionMouse {
+
+	private static Minecraft mc = Minecraft.getMinecraft();
 
 	private static float LEFT_ROLL_THRESHOLD = 0.25f;
 	private static float LEFT_ROLL_INIT = 0.75f;
@@ -98,29 +101,38 @@ public class LeapMotionMouse {
 	    return frame;
 	}
 
-	public static void getmcX() {
-
+	public static int getmcX() {
+		return mcX;
 	}
 
-	public static void getmcY() {
-
+	public static int getmcY() {
+		return mcY;
 	}
 
-	public static void getX() {
-
+	public static int getX() {
+		return x;
 	}
 
-	public static void getY() {
-
+	public static int getY() {
+		return y;
 	}
 
-	public static void isLeftButtonDown() {
+	public static boolean isLeftButtonDown() {
+		return VirtualMouse.isButtonDown(0);
+	}
 
+	public static boolean pollNeeded(boolean inGui) {
+		if (Minecraft.getSystemTime() - lastAxisReading < (inGui ? guiPollTimeout : gamePollTimeout))
+			return false;
+		return true;
 	}
 
 	// pollAxis() will update the x and y position of the
 	// 'mouse' with respect to right hand's movements.
 	public static void pollAxis(boolean inGui) {
+		if (!pollNeeded(inGui))
+			return;
+
 		// TODO: how to handle GUI
 		if (inGui) return;
 
