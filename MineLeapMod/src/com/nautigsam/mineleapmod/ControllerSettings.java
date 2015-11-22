@@ -436,6 +436,26 @@ public class ControllerSettings
 		return validControllers.size();
 	}
 
+	public static void addLeapMotion()
+	{
+		LogHelper.Info("Found LeapMotion!");
+		// Add LeapMotion to the list of controller and make it the current controller
+		addControllerToList(validControllers, "LeapMotion", 0);
+		// NOTE: These lines are from setController(). We need to figure out which we need to use and/or adapt, since we can't use
+		// setController() just like that
+
+		// ControllerSettings.setDefaultJoyBindingMap(controllerNo, true);
+		inputEnabled = true;
+		config.updatePreferedJoy(0, "LeapMotion");
+		Minecraft.getMinecraft().gameSettings.pauseOnLostFocus = false;
+		// JoypadMouse.AxisReader.centerCrosshairs();
+		// checkIfBindingsNeedUpdating();
+		// unpressAll();
+
+		// TODO: not sure if this is needed.
+		Controllers.clearEvents();
+	}
+
 	public static boolean setController(int controllerNo)
 	{
 		LogHelper.Info("Attempting to use controller " + controllerNo);
