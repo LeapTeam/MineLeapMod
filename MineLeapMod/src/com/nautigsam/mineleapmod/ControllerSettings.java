@@ -431,7 +431,7 @@ public class ControllerSettings
 		{
 			System.err.println("Couldn't initialize Controllers: " + e.getMessage());
 		}
-
+		addLeapMotion();
 		LogHelper.Info("Found " + validControllers.size() + " valid controllers!");
 		return validControllers.size();
 	}
@@ -444,11 +444,11 @@ public class ControllerSettings
 		// NOTE: These lines are from setController(). We need to figure out which we need to use and/or adapt, since we can't use
 		// setController() just like that
 
-		// ControllerSettings.setDefaultJoyBindingMap(controllerNo, true);
+		// ControllerSettings.setDefaultJoyBindingMap(0, true);
 		inputEnabled = true;
 		config.updatePreferedJoy(0, "LeapMotion");
 		Minecraft.getMinecraft().gameSettings.pauseOnLostFocus = false;
-		// JoypadMouse.AxisReader.centerCrosshairs();
+		LeapMotionMouse.centerCrosshairs();
 		// checkIfBindingsNeedUpdating();
 		// unpressAll();
 
@@ -483,7 +483,7 @@ public class ControllerSettings
 			config.updatePreferedJoy(controllerNo, Controllers.getController(controllerNo).getName());
 
 			Minecraft.getMinecraft().gameSettings.pauseOnLostFocus = false;
-			JoypadMouse.AxisReader.centerCrosshairs();
+			LeapMotionMouse.centerCrosshairs();
 			checkIfBindingsNeedUpdating();
 			unpressAll();
 			return true;
@@ -522,7 +522,7 @@ public class ControllerSettings
 		unpressAll();
 		if (!b)
 		{
-			JoypadMouse.AxisReader.setXY(0, 0);
+			LeapMotionMouse.setXY(0, 0);
 			VirtualMouse.setXY(0, 0);
 			inputEnabled = false;
 			config.updatePreferedJoy(-1, null);
@@ -537,7 +537,7 @@ public class ControllerSettings
 
 		inputEnabled = true;
 		config.updatePreferedJoy(joyIndex, Controllers.getController(joyIndex).getName());
-		JoypadMouse.AxisReader.centerCrosshairs();
+		LeapMotionMouse.centerCrosshairs();
 	}
 
 	private static long suspendMax;
@@ -551,7 +551,7 @@ public class ControllerSettings
 			suspendMax = maxTicksToSuspend;
 		}
 		ControllerSettings.suspendControllerInput = suspend;
-		JoypadMouse.UnpressButtons();
+		LeapMotionMouse.UnpressButtons();
 	}
 
 	public static boolean isSuspended()

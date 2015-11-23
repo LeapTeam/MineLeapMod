@@ -61,7 +61,7 @@ public class GameRenderHandler
 				if (InGuiCheckNeeded())
 				{
 					if (Mouse.isInsideWindow()
-							&& Minecraft.getSystemTime() - JoypadMouse.AxisReader.lastNon0Reading > 1000)
+							&& Minecraft.getSystemTime() - LeapMotionMouse.lastNon0Reading > 1000)
 					{
 						if (Mouse.getDX() != 0 || Mouse.getDY() != 0)
 						{
@@ -79,7 +79,7 @@ public class GameRenderHandler
 					// This call here re-points the mouse position that Minecraft picks
 					// up to determine if it should do the Hover over button effect.
 					if (!mouseDetected)
-						VirtualMouse.setXY(JoypadMouse.getmcX(), JoypadMouse.getmcY());
+						VirtualMouse.setXY(LeapMotionMouse.getmcX(), LeapMotionMouse.getmcY());
 					if (preRenderGuiBucket.size() > 0)
 					{
 						for (String mapKey : preRenderGuiBucket)
@@ -197,9 +197,9 @@ public class GameRenderHandler
 		if (mc.currentScreen == null || !ControllerSettings.isInputEnabled())
 			return;
 
-		JoypadMouse.updateXY();
-		int x = JoypadMouse.getX();
-		int y = JoypadMouse.getY();
+		LeapMotionMouse.updateXY();
+		int x = LeapMotionMouse.getX();
+		int y = LeapMotionMouse.getY();
 
 		Gui.drawRect(x - 3, y, x + 4, y + 1, reticalColor);
 		Gui.drawRect(x, y - 3, x + 1, y + 4, reticalColor);
@@ -211,12 +211,12 @@ public class GameRenderHandler
 		{
 			if (lastFlansModCheckValue)
 			{
-				if (JoypadMouse.pollAxis(false))
+				if (LeapMotionMouse.pollAxis(false))
 				{
 					float multiplier = 4f * mc.gameSettings.mouseSensitivity;
 					VirtualMouse.moveMouse(
-							(int) (JoypadMouse.AxisReader.deltaX * multiplier),
-							(int) (JoypadMouse.AxisReader.deltaY * multiplier * (ControllerSettings.getInvertYAxis() ? 1.0f
+							(int) (LeapMotionMouse.deltaX * multiplier),
+							(int) (LeapMotionMouse.deltaY * multiplier * (ControllerSettings.getInvertYAxis() ? 1.0f
 									: -1.0f)));
 				}
 				else
@@ -224,9 +224,9 @@ public class GameRenderHandler
 					VirtualMouse.moveMouse(0, 0);
 				}
 			}
-			else if (JoypadMouse.pollAxis(false))
+			else if (LeapMotionMouse.pollAxis(false))
 			{
-				mc.thePlayer.setAngles(JoypadMouse.AxisReader.deltaX, JoypadMouse.AxisReader.deltaY
+				mc.thePlayer.setAngles(LeapMotionMouse.deltaX, LeapMotionMouse.deltaY
 						* (ControllerSettings.getInvertYAxis() ? 1.0f : -1.0f));
 			}
 		}
@@ -237,9 +237,9 @@ public class GameRenderHandler
 
 		if (VirtualMouse.isButtonDown(0) || VirtualMouse.isButtonDown(1))
 		{
-			// VirtualMouse.moveMouse(JoypadMouse.getmcX(), JoypadMouse.getmcY());
-			McGuiHelper.guiMouseDrag(JoypadMouse.getX(), JoypadMouse.getY());
-			VirtualMouse.setMouseButton(JoypadMouse.isLeftButtonDown() ? 0 : 1, true);
+			// VirtualMouse.moveMouse(LeapMotionMouse.getmcX(), LeapMotionMouse.getmcY());
+			McGuiHelper.guiMouseDrag(LeapMotionMouse.getX(), LeapMotionMouse.getY());
+			VirtualMouse.setMouseButton(LeapMotionMouse.isLeftButtonDown() ? 0 : 1, true);
 		}
 
 		if (mc.currentScreen != null && mc.currentScreen instanceof GuiContainer)
@@ -256,9 +256,9 @@ public class GameRenderHandler
 	private static void HandleJoystickInGui()
 	{
 		// update mouse coordinates
-		// JoypadMouse.updateXY();
+		// LeapMotionMouse.updateXY();
 		if (!mouseDetected)
-			VirtualMouse.setXY(JoypadMouse.getmcX(), JoypadMouse.getmcY());
+			VirtualMouse.setXY(LeapMotionMouse.getmcX(), LeapMotionMouse.getmcY());
 
 		for (ControllerBinding binding = ControllerSettings.startMenuBindIteration(); binding != null; binding = ControllerSettings.getNextMenuAutoBinding())
 		{
