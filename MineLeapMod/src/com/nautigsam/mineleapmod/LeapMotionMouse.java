@@ -74,50 +74,51 @@ public class LeapMotionMouse {
 		return y;
 	}
 
-	public static void leftButtonDown() {
-		if (!VirtualMouse.isButtonDown(0))
+	private static void leftButtonDown() {
+		if (!VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON))
 		{
 			VirtualMouse.setXY(mcX, mcY);
-			VirtualMouse.holdMouseButton(0, true);
+			boolean onlyIfNotHeld = true;
+			VirtualMouse.holdMouseButton(VirtualMouse.LEFT_BUTTON, onlyIfNotHeld);
 		}
 	}
 
-	public static void leftButtonUp() {
-		if (VirtualMouse.isButtonDown(0))
+	private static void leftButtonUp() {
+		if (VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON))
 		{
-			VirtualMouse.releaseMouseButton(0, true);
+			boolean onlyIfHeld = true;
+			VirtualMouse.releaseMouseButton(VirtualMouse.LEFT_BUTTON, onlyIfHeld);
 		}
 	}
 
 	public static boolean isLeftButtonDown() {
-		return VirtualMouse.isButtonDown(0);
+		return VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON);
 	}
 
-	public static void rightButtonDown() {
-		if (!VirtualMouse.isButtonDown(1))
+	private static void rightButtonDown() {
+		if (!VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON))
 		{
 			VirtualMouse.setXY(mcX, mcY);
-			VirtualMouse.holdMouseButton(1, true);
+			boolean onlyIfNotHeld = true;
+			VirtualMouse.holdMouseButton(VirtualMouse.RIGHT_BUTTON, onlyIfNotHeld);
 		}
 	}
 
-	public static void rightButtonUp() {
-		if (VirtualMouse.isButtonDown(1))
+	private static void rightButtonUp() {
+		if (VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON))
 		{
-			VirtualMouse.releaseMouseButton(1, true);
+			boolean onlyIfHeld = true;
+			VirtualMouse.releaseMouseButton(VirtualMouse.RIGHT_BUTTON, onlyIfHeld);
 		}
 	}
 
 	public static boolean isRightButtonDown() {
-		return VirtualMouse.isButtonDown(1);
+		return VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON);
 	}
 
 	public static void UnpressButtons() {
-		for (int i = 0; i < 2; i++)
-		{
-			if (VirtualMouse.isButtonDown(i))
-				VirtualMouse.releaseMouseButton(i, true);
-		}
+		rightButtonUp();
+		leftButtonUp();
 	}
 
 	public static boolean pollNeeded(boolean inGui) {
