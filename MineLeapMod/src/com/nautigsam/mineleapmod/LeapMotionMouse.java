@@ -1,12 +1,17 @@
 package com.nautigsam.mineleapmod;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
 import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Listener;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.HandList;
 import com.leapmotion.leap.Hand;
 
+// temp
+import java.io.IOException;
+
+import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
 import com.nautigsam.mineleapmod.helpers.LogHelper;
 import com.nautigsam.mineleapmod.ControllerSettings;
 
@@ -101,6 +106,20 @@ public class LeapMotionMouse {
 	    return frame;
 	}
 
+	public static void main(String[] args) {
+		LeapMotionMouse listener = new LeapMotionMouse();
+		controller = new Controller();
+
+		// Keep this process running until Enter is pressed
+		System.out.println("Press Enter to quit...");
+		try {
+			System.in.read();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 	public static int getmcX() {
 		return mcX;
 	}
@@ -117,8 +136,50 @@ public class LeapMotionMouse {
 		return y;
 	}
 
+	public static void leftButtonDown() {
+		if (!VirtualMouse.isButtonDown(0))
+		{
+			VirtualMouse.setXY(mcX, mcY);
+			VirtualMouse.holdMouseButton(0, true);
+		}
+	}
+
+	public static void leftButtonUp() {
+		if (VirtualMouse.isButtonDown(0))
+		{
+			VirtualMouse.releaseMouseButton(0, true);
+		}
+	}
+
 	public static boolean isLeftButtonDown() {
 		return VirtualMouse.isButtonDown(0);
+	}
+
+	public static void rightButtonDown() {
+		if (!VirtualMouse.isButtonDown(1))
+		{
+			VirtualMouse.setXY(mcX, mcY);
+			VirtualMouse.holdMouseButton(1, true);
+		}
+	}
+
+	public static void rightButtonUp() {
+		if (VirtualMouse.isButtonDown(1))
+		{
+			VirtualMouse.releaseMouseButton(1, true);
+		}
+	}
+
+	public static boolean isRightButtonDown() {
+		return VirtualMouse.isButtonDown(1);
+	}
+
+	public static void UnpressButtons() {
+		for (int i = 0; i < 2; i++)
+		{
+			if (VirtualMouse.isButtonDown(i))
+				VirtualMouse.releaseMouseButton(i, true);
+		}
 	}
 
 	public static boolean pollNeeded(boolean inGui) {
@@ -127,14 +188,18 @@ public class LeapMotionMouse {
 		return true;
 	}
 
+	public static void pollAxis() {
+		pollAxis(mc.currentScreen != null);
+	}
+
 	// pollAxis() will update the x and y position of the
 	// 'mouse' with respect to right hand's movements.
-	public static void pollAxis(boolean inGui) {
+	public static boolean pollAxis(boolean inGui) {
 		if (!pollNeeded(inGui))
-			return;
+			return false;
 
 		// TODO: how to handle GUI
-		if (inGui) return;
+		if (inGui) return false;
 
 		Hand hand =	nextFrame().hands().rightmost();
 
@@ -158,26 +223,52 @@ public class LeapMotionMouse {
 		deltaY = calculateDelta(pitch, RIGHT_PITCH_THRESHOLD);
 
 		LogHelper.Info("Camera deltaX: " + deltaX + " Camera deltaY: " + deltaY);
+		return deltaX != 0 || deltaY != 0;
 	}
 
-	public static float calculateDelta(float delta, float threshhold) {
+	public static void centerCrosshairs() {
+		final ScaledResolution scaledResolution = new ScaledResolution(mc, mc.displayWidth,
+				mc.displayHeight);
+
+		x = scaledResolution.getScaledWidth() / 2;
+		y = scaledResolution.getScaledHeight() / 2;
+
+		mcY = mc.displayHeight - (int) (y * scaledResolution.getScaleFactor());
+		mcX = x * scaledResolution.getScaleFactor();
+	}
+
+	private static float getModifiedMultiplier(float currentMultiplier) {
+		long elapsed = Minecraft.getSystemTime() - last0Reading;
+		if (elapsed < 500)
+		{
+			float base = currentMultiplier * 0.5f;
+
+			// increase the multiplier by 10% every 100 ms
+			currentMultiplier = base + (base * elapsed) / 500;
+			if (ControllerSettings.loggingLevel > 2)
+				LogHelper.Info("CameraMultiplier " + currentMultiplier);
+		}
+
+		return currentMultiplier;
+	}
+
+	public static float calculateDelta(float delta, float threshold) {
 		if (Math.abs(delta) < 0.01)
 			return 0;
 
-		if (delta < threshhold && pitch > -1 * threshhold) {
+		if (delta < threshold && delta > -1 * threshold) {
 			return 0;
 		}
 
-		float cameraMultiplier = (inGui ? ControllerSettings.inMenuSensitivity
-					: ControllerSettings.inGameSensitivity);
-		if (Math.abs(currentDelta) < Math.abs(currentThreshold / 2))
+		float cameraMultiplier = ControllerSettings.inGameSensitivity;
+		if (Math.abs(delta) < Math.abs(threshold / 2))
 			cameraMultiplier *= 0.3;
-		else if (Math.abs(currentDelta) < Math.abs(currentThreshold))
+		else if (Math.abs(delta) < Math.abs(threshold))
 			cameraMultiplier *= 0.5;
 		else
 			cameraMultiplier = getModifiedMultiplier(cameraMultiplier);
 
-		float finalDelta = currentDelta * cameraMultiplier;
+		float finalDelta = delta * cameraMultiplier;
 
 		// return at minimum a 1 or -1
 		if (finalDelta < 1.0 && finalDelta > 0.0)
@@ -188,8 +279,45 @@ public class LeapMotionMouse {
 		return finalDelta;
 	}
 
+	public static void setXY(int newX, int newY) {
+		final ScaledResolution scaledResolution = new ScaledResolution(mc, mc.displayWidth,
+				mc.displayHeight);
+
+		x = newX;
+		y = newY;
+		mcX = x * scaledResolution.getScaleFactor();
+		mcY = mc.displayHeight - (int) (y * scaledResolution.getScaleFactor());
+	}
+
 	public static void updateXY() {
 
+		final ScaledResolution scaledResolution = new ScaledResolution(mc, mc.displayWidth,
+				mc.displayHeight);
+
+		pollAxis();
+
+		if (mc.currentScreen != null)
+		{
+			x += (int) deltaX;
+			y += (int) deltaY;
+
+			if (x < 0)
+				x = 0;
+			if (y < 0)
+				y = 0;
+			if (x > scaledResolution.getScaledWidth())
+				x = scaledResolution.getScaledWidth() - 5;
+			if (y > scaledResolution.getScaledHeight())
+				y = scaledResolution.getScaledHeight() - 5;
+
+			if (ControllerSettings.loggingLevel > 2)
+				LogHelper.Debug("Virtual Mouse x: " + x + " y: " + y);
+
+			mcY = mc.displayHeight - (int) (y * scaledResolution.getScaleFactor());
+			mcX = x * scaledResolution.getScaleFactor();
+			deltaX = 0;
+			deltaY = 0;
+		}
 	}
 
 }
