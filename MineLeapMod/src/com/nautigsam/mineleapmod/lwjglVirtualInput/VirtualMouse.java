@@ -10,6 +10,8 @@ import com.nautigsam.mineleapmod.helpers.LogHelper;
 
 public class VirtualMouse
 {
+	public final static int LEFT_BUTTON = 0;
+	public final static int RIGHT_BUTTON = 1;
 
 	private static Field xField;
 	private static Field yField;

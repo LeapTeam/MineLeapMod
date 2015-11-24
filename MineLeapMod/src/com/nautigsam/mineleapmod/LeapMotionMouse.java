@@ -8,9 +8,6 @@ import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.HandList;
 import com.leapmotion.leap.Hand;
 
-// temp
-import java.io.IOException;
-
 import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
 import com.nautigsam.mineleapmod.helpers.LogHelper;
 import com.nautigsam.mineleapmod.ControllerSettings;
@@ -52,51 +49,6 @@ public class LeapMotionMouse {
 	private static long lastFrameID = 0;
 	private static Controller controller;
 
-	public void onFrame(Controller controller) {
-		Frame frame = controller.frame();
-
-		System.out.println(".");
-		for (Hand hand : frame.hands()) {
-			// Left Hand controls movement
-			// Right Hand controls camera
-			// Angles:
-			// pitch (angle x-axis) (fingers up/down)
-			// yaw (angle y-axis) (sideways rotation)
-			// roll (angle z-axis) (thumbs up/down):
-			if (hand.isLeft()) {
-				float pitch = hand.direction().pitch();
-				float yaw = hand.direction().yaw();
-				float roll = hand.palmNormal().roll();
-
-				if (roll > LEFT_ROLL_INIT + LEFT_ROLL_THRESHOLD) {
-					System.out.println("LEFT!");
-				} else if (roll < LEFT_ROLL_INIT - LEFT_ROLL_THRESHOLD) {
-					System.out.println("RIGHT!");
-				}
-				if (pitch > LEFT_PITCH_INIT + LEFT_PITCH_THRESHOLD) {
-					System.out.println("BACKWARD!");
-				} else if (pitch < LEFT_PITCH_INIT - LEFT_PITCH_THRESHOLD) {
-					System.out.println("FORWARD!");
-				}
-			} else if (hand.isRight()) {
-				float pitch = hand.direction().pitch();
-				float yaw = hand.direction().yaw();
-				float roll = hand.palmNormal().roll();
-				if (roll > RIGHT_ROLL_INIT + RIGHT_ROLL_THRESHOLD) {
-					System.out.println("CAMERA LEFT!");
-				} else if (roll < RIGHT_ROLL_INIT - RIGHT_ROLL_THRESHOLD) {
-					System.out.println("CAMERA RIGHT!");
-				}
-				if (pitch > RIGHT_PITCH_INIT + RIGHT_PITCH_THRESHOLD) {
-					System.out.println("CAMERA UP!");
-				} else if (pitch < RIGHT_PITCH_INIT - RIGHT_PITCH_THRESHOLD) {
-					System.out.println("CAMERA DOWN!");
-				}
-			}
-
-		}
-	}
-
 	public static Frame nextFrame() {
 		Frame frame = controller.frame();
 
@@ -105,20 +57,6 @@ public class LeapMotionMouse {
 	    // lastFrameID = frame.id();
 
 	    return frame;
-	}
-
-	public static void main(String[] args) {
-		LeapMotionMouse listener = new LeapMotionMouse();
-		controller = new Controller();
-
-		// Keep this process running until Enter is pressed
-		System.out.println("Press Enter to quit...");
-		try {
-			System.in.read();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
 	}
 
 	public static int getmcX() {
@@ -137,50 +75,51 @@ public class LeapMotionMouse {
 		return y;
 	}
 
-	public static void leftButtonDown() {
-		if (!VirtualMouse.isButtonDown(0))
+	private static void leftButtonDown() {
+		if (!VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON))
 		{
 			VirtualMouse.setXY(mcX, mcY);
-			VirtualMouse.holdMouseButton(0, true);
+			boolean onlyIfNotHeld = true;
+			VirtualMouse.holdMouseButton(VirtualMouse.LEFT_BUTTON, onlyIfNotHeld);
 		}
 	}
 
-	public static void leftButtonUp() {
-		if (VirtualMouse.isButtonDown(0))
+	private static void leftButtonUp() {
+		if (VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON))
 		{
-			VirtualMouse.releaseMouseButton(0, true);
+			boolean onlyIfHeld = true;
+			VirtualMouse.releaseMouseButton(VirtualMouse.LEFT_BUTTON, onlyIfHeld);
 		}
 	}
 
 	public static boolean isLeftButtonDown() {
-		return VirtualMouse.isButtonDown(0);
+		return VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON);
 	}
 
-	public static void rightButtonDown() {
-		if (!VirtualMouse.isButtonDown(1))
+	private static void rightButtonDown() {
+		if (!VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON))
 		{
 			VirtualMouse.setXY(mcX, mcY);
-			VirtualMouse.holdMouseButton(1, true);
+			boolean onlyIfNotHeld = true;
+			VirtualMouse.holdMouseButton(VirtualMouse.RIGHT_BUTTON, onlyIfNotHeld);
 		}
 	}
 
-	public static void rightButtonUp() {
-		if (VirtualMouse.isButtonDown(1))
+	private static void rightButtonUp() {
+		if (VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON))
 		{
-			VirtualMouse.releaseMouseButton(1, true);
+			boolean onlyIfHeld = true;
+			VirtualMouse.releaseMouseButton(VirtualMouse.RIGHT_BUTTON, onlyIfHeld);
 		}
 	}
 
 	public static boolean isRightButtonDown() {
-		return VirtualMouse.isButtonDown(1);
+		return VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON);
 	}
 
 	public static void UnpressButtons() {
-		for (int i = 0; i < 2; i++)
-		{
-			if (VirtualMouse.isButtonDown(i))
-				VirtualMouse.releaseMouseButton(i, true);
-		}
+		rightButtonUp();
+		leftButtonUp();
 	}
 
 	public static boolean pollNeeded(boolean inGui) {
