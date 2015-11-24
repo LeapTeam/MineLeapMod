@@ -15,6 +15,7 @@ import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
 import com.nautigsam.mineleapmod.helpers.LogHelper;
 import com.nautigsam.mineleapmod.ControllerSettings;
 
+// TODO turn it into a Singleton
 public class LeapMotionMouse {
 
 	private static Minecraft mc = Minecraft.getMinecraft();
