@@ -1,17 +1,14 @@
 package com.nautigsam.mineleapmod.inputevent;
 
-import java.util.EnumSet;
-import java.util.Locale;
-
-import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualKeyboard;
-import net.minecraft.client.Minecraft;
-
-import org.lwjgl.input.Keyboard;
-
 import com.nautigsam.mineleapmod.helpers.LogHelper;
 import com.nautigsam.mineleapmod.inputevent.ControllerInputEvent.EventType;
+import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualKeyboard;
 import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
-import com.nautigsam.mineleapmod.minecraftExtensions.JoypadCalibrationMenu;
+import net.minecraft.client.Minecraft;
+import org.lwjgl.input.Keyboard;
+
+import java.util.EnumSet;
+import java.util.Locale;
 
 public class ControllerBinding
 {
@@ -249,10 +246,6 @@ public class ControllerBinding
 						continue;
 					}
 
-					// ignore escape key bindings from calibration menu
-					if (i == Keyboard.KEY_ESCAPE && Minecraft.getMinecraft().currentScreen != null
-							&& Minecraft.getMinecraft().currentScreen instanceof JoypadCalibrationMenu)
-						continue;
 					if (sendPressKey)
 					{
 						VirtualKeyboard.pressKey(i);

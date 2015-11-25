@@ -22,6 +22,10 @@ apply plugin: "net.minecraftforge.gradle.forge"
 tasks.withType(JavaExec) {
     systemProperty "java.library.path", file("./libs")
 }
+runClient {
+    // modify the path to your LeapJava.jar
+    systemProperty "java.library.path", leapmotionJarPath
+}
 
 repositories {
     mavenCentral()
@@ -29,7 +33,7 @@ repositories {
 
 dependencies {
     compile "org.lwjgl.lwjgl:lwjgl:2.+"
-    compile files("libs/LeapJava.jar")
+    compile files("$leapmotionJarPath/LeapJava.jar")
 }
 
 sourceSets {

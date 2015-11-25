@@ -12,6 +12,7 @@ import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
 import com.nautigsam.mineleapmod.helpers.LogHelper;
 import com.nautigsam.mineleapmod.ControllerSettings;
 
+// TODO turn it into a Singleton
 public class LeapMotionMouse {
 
 	private static Minecraft mc = Minecraft.getMinecraft();
@@ -46,7 +47,7 @@ public class LeapMotionMouse {
 	public static long lastNon0Reading = 0;
 
 	private static long lastFrameID = 0;
-	private static Controller controller;
+	private static Controller controller = new Controller();
 
 	public static Frame nextFrame() {
 		Frame frame = controller.frame();
