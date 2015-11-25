@@ -80,33 +80,7 @@ public class GameRenderHandler
 					// up to determine if it should do the Hover over button effect.
 					if (!mouseDetected)
 						VirtualMouse.setXY(LeapMotionMouse.getmcX(), LeapMotionMouse.getmcY());
-					if (preRenderGuiBucket.size() > 0)
-					{
-						for (String mapKey : preRenderGuiBucket)
-						{
-							ControllerSettings.get(mapKey).wasPressed(true, true);
-						}
-						preRenderGuiBucket.clear();
-					}
 					HandleDragAndScrolling();
-				}
-			}
-
-			if (InGameCheckNeeded())
-			{
-				for (ControllerBinding binding = ControllerSettings.startGameBindIteration(); binding != null; binding = ControllerSettings.getNextGameAutoBinding())
-				{
-					if (binding.bindingOptions.contains(ControllerBinding.BindingOptions.RENDER_TICK))
-						binding.isPressed();
-				}
-
-				if (preRenderGameBucket.size() > 0)
-				{
-					for (String mapKey : preRenderGameBucket)
-					{
-						ControllerSettings.get(mapKey).wasPressed(true, true);
-					}
-					preRenderGameBucket.clear();
 				}
 			}
 		}
@@ -142,11 +116,6 @@ public class GameRenderHandler
 				{
 					ControllerSettings.unpressAll();
 					Minecraft.getMinecraft().gameSettings.pauseOnLostFocus = false;
-				}
-
-				for (ControllerBinding binding = ControllerSettings.startGameBindIteration(); binding != null; binding = ControllerSettings.getNextGameAutoBinding())
-				{
-					binding.isPressed();
 				}
 
 				UpdateInGameCamera();
@@ -216,8 +185,7 @@ public class GameRenderHandler
 					float multiplier = 4f * mc.gameSettings.mouseSensitivity;
 					VirtualMouse.moveMouse(
 							(int) (LeapMotionMouse.deltaX * multiplier),
-							(int) (LeapMotionMouse.deltaY * multiplier * (ControllerSettings.getInvertYAxis() ? 1.0f
-									: -1.0f)));
+							(int) (LeapMotionMouse.deltaY * multiplier));
 				}
 				else
 				{
@@ -226,8 +194,7 @@ public class GameRenderHandler
 			}
 			else if (LeapMotionMouse.pollAxis(false))
 			{
-				mc.thePlayer.setAngles(LeapMotionMouse.deltaX, LeapMotionMouse.deltaY
-						* (ControllerSettings.getInvertYAxis() ? 1.0f : -1.0f));
+				mc.thePlayer.setAngles(LeapMotionMouse.deltaX, LeapMotionMouse.deltaY);
 			}
 		}
 	}
@@ -241,16 +208,6 @@ public class GameRenderHandler
 			McGuiHelper.guiMouseDrag(LeapMotionMouse.getX(), LeapMotionMouse.getY());
 			VirtualMouse.setMouseButton(LeapMotionMouse.isLeftButtonDown() ? 0 : 1, true);
 		}
-
-		if (mc.currentScreen != null && mc.currentScreen instanceof GuiContainer)
-		{
-			if (Minecraft.getSystemTime() - ControllerSettings.get("joy.scrollDown").lastTick < 100
-					|| Minecraft.getSystemTime() - ControllerSettings.get("joy.scrollUp").lastTick < 100)
-				return;
-		}
-
-		ControllerSettings.get("joy.scrollDown").isPressed();
-		ControllerSettings.get("joy.scrollUp").isPressed();
 	}
 
 	private static void HandleJoystickInGui()
@@ -259,12 +216,6 @@ public class GameRenderHandler
 		// LeapMotionMouse.updateXY();
 		if (!mouseDetected)
 			VirtualMouse.setXY(LeapMotionMouse.getmcX(), LeapMotionMouse.getmcY());
-
-		for (ControllerBinding binding = ControllerSettings.startMenuBindIteration(); binding != null; binding = ControllerSettings.getNextMenuAutoBinding())
-		{
-			if (!binding.bindingOptions.contains(ControllerBinding.BindingOptions.RENDER_TICK))
-				binding.isPressed();
-		}
 
 		while (Controllers.next() && mc.currentScreen != null)
 		{
@@ -290,30 +241,11 @@ public class GameRenderHandler
 					LogHelper.Error("Exception caught debugging controller input events: " + ex.toString());
 				}
 			}
-
-			for (ControllerBinding binding = ControllerSettings.startMenuBindIteration(); binding != null; binding = ControllerSettings.getNextMenuAutoBinding())
-			{
-				if (binding.bindingOptions.contains(ControllerBinding.BindingOptions.RENDER_TICK))
-				{
-					if (binding.wasPressed(false))
-					{
-						preRenderGuiBucket.add(binding.inputString);
-					}
-				}
-				else
-				{
-					binding.wasPressed();
-				}
-			}
 		}
 	}
 
 	private static void HandleJoystickInGame()
 	{
-		for (ControllerBinding binding = ControllerSettings.startGameBindIteration(); binding != null; binding = ControllerSettings.getNextGameAutoBinding())
-		{
-			binding.isPressed();
-		}
 
 		while (Controllers.next() && (mc.currentScreen == null || lastFlansModCheckValue))
 		{
@@ -341,32 +273,6 @@ public class GameRenderHandler
 			}
 
 			mc.inGameHasFocus = true;
-
-			// hack in sprint
-			if (ModVersionHelper.getVersion() == 164)
-			{
-				if (ControllerSettings.get("joy.sprint").wasPressed())
-				{
-					mc.thePlayer.setSprinting(true);
-					continue;
-				}
-			}
-
-			for (ControllerBinding binding = ControllerSettings.startGameBindIteration(); binding != null; binding = ControllerSettings.getNextGameAutoBinding())
-			{
-				if (binding.bindingOptions.contains(ControllerBinding.BindingOptions.RENDER_TICK))
-				{
-					if (binding.wasPressed(false))
-					{
-						preRenderGameBucket.add(binding.inputString);
-					}
-				}
-				else
-				{
-					binding.wasPressed();
-				}
-			}
-
 		}
 	}
 
@@ -412,7 +318,7 @@ public class GameRenderHandler
 
 	public static boolean CheckIfModEnabled()
 	{
-		if (mc == null || !ControllerSettings.isInputEnabled() || ControllerSettings.joyNo == -1)
+		if (mc == null || !ControllerSettings.isInputEnabled())
 		{
 			return false;
 		}

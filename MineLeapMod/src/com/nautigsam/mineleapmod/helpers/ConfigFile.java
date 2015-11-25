@@ -330,19 +330,6 @@ public class ConfigFile
 					ControllerBinding b = new ControllerBinding(key + "," + bindSettings, joyNo, lastVersion);
 					if (b.inputString != null)
 					{
-						if (cleanupCategories)
-						{
-							ControllerBinding targetBinding = ControllerSettings.get(b.inputString);
-							if (targetBinding != null)
-							{
-								targetBinding.inputEvent = b.inputEvent;
-								if (b.bindingOptions.contains(BindingOptions.IS_TOGGLE))
-									targetBinding.bindingOptions.add(BindingOptions.IS_TOGGLE);
-								if (b.bindingOptions.contains(BindingOptions.RENDER_TICK))
-									targetBinding.bindingOptions.add(BindingOptions.RENDER_TICK);
-								b = targetBinding;
-							}
-						}
 						controlBindingsFromConfigFile.add(b);
 						ControllerSettings.joyBindingsMap.put(b.inputString, b);
 					}
