@@ -86,7 +86,7 @@ public class GameRenderHandler
 		}
 		catch (Exception ex)
 		{
-			LogHelper.Fatal("Joypad mod unhandled exception caught! " + ex.toString());
+			LogHelper.Fatal("Joypad mod unhandled exception caught in HandlePreRender! " + ex.toString());
 		}
 	}
 
@@ -123,7 +123,8 @@ public class GameRenderHandler
 		}
 		catch (Exception ex)
 		{
-			LogHelper.Fatal("Joypad mod unhandled exception caught! " + ex.toString());
+			ex.printStackTrace();
+			LogHelper.Fatal("Joypad mod unhandled exception caught in HandlePostRender! " + ex.toString());
 		}
 
 	}

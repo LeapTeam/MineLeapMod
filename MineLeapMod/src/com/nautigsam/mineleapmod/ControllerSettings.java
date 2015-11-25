@@ -20,6 +20,7 @@ import java.util.Map;
 public class ControllerSettings
 {
 	private static Controller controller = null;
+	private static Listener connectionListener = null;
 	//public static final float defaultAxisDeadZone = 0.20f;
 	//public static final float defaultAxisThreshhold = 0.7f;
 	//public static final float defaultPovThreshhold = 0.9f;
@@ -81,12 +82,14 @@ public class ControllerSettings
 				+ " by LeapTeam\n---");
 
 		LogHelper.Info("Initializing Controller");
-		controller = new Controller(new Listener() {
+
+		connectionListener = new Listener() {
 			public void onConnect()
 			{
 				LogHelper.Info("LeapMotion controller detected and connected!");
 			}
-		});
+		};
+		controller = new Controller(connectionListener);
 	}
 
 

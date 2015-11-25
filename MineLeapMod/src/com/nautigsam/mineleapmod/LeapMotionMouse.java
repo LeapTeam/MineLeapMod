@@ -47,7 +47,7 @@ public class LeapMotionMouse {
 	public static long lastNon0Reading = 0;
 
 	private static long lastFrameID = 0;
-	private static Controller controller;
+	private static Controller controller = new Controller();
 
 	public static Frame nextFrame() {
 		Frame frame = controller.frame();
