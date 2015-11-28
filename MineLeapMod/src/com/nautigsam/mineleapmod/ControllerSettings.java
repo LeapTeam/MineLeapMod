@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -82,30 +83,61 @@ public class ControllerSettings
 				+ " by LeapTeam\n---");
 
 		LogHelper.Info("Initializing Controller");
-
-		connectionListener = new Listener() {
-			public void onConnect()
-			{
-				LogHelper.Info("LeapMotion controller detected and connected!");
-			}
-		};
-		controller = new Controller(connectionListener);
 	}
 
+	public static void enableLeapMotion(String javaLibraryPath) {
+		if (controller == null) {
+			try
+			{
+				// Modify java.library.path in an horrible manner
+				File dir = new File(javaLibraryPath);
+				String oldJavaLibraryPath = System.getProperty("java.library.path");
+				System.setProperty("java.library.path", oldJavaLibraryPath + File.pathSeparatorChar + dir.getAbsolutePath());
+				synchronized(Runtime.getRuntime()) {
+					try {
+						Field field = ClassLoader.class.getDeclaredField("usr_paths");
+						field.setAccessible(true);
+						field.set(null, null);
+
+						field = ClassLoader.class.getDeclaredField("sys_paths");
+						field.setAccessible(true);
+						field.set(null, null);
+					} catch (NoSuchFieldException e) {
+						throw new RuntimeException(e);
+					} catch (IllegalAccessException e) {
+						throw new RuntimeException(e);
+					}
+				}
+
+				connectionListener = new Listener() {
+					public void onConnect()
+					{
+						LogHelper.Info("LeapMotion controller detected and connected!");
+					}
+				};
+				controller = new Controller(connectionListener);
+				LeapMotionMouse.create(controller);
+			} catch (Exception e) {
+				LogHelper.Error("Can't find Leap native libraries in the provided directory ("+javaLibraryPath+")");
+				controller = null;
+				connectionListener = null;
+			}
+		}
+	}
 
 	public static boolean hasDevice()
 	{
-		return controller.devices().count() > 0;
+		return isLeapMotionEnabled() && controller.devices().count() > 0;
 	}
 
 	public static String getControllerName()
 	{
-		 return controller.devices().get(0).toString();
+		 return (isLeapMotionEnabled() ? controller.devices().get(0).toString() : "Native libraries not loaded");
 	}
 
 	public static boolean isConnected()
 	{
-		return controller.isConnected();
+		return isLeapMotionEnabled() && controller.isConnected();
 	}
 
 	public static boolean isInputEnabled()
@@ -113,18 +145,31 @@ public class ControllerSettings
 		return inputEnabled;
 	}
 
+	public static boolean isLeapMotionEnabled()
+	{
+		return LeapMotionMouse.isCreated();
+	}
+
+	public static LeapMotionMouse getLeapMotionMouse()
+	{
+		return LeapMotionMouse.getInstance();
+	}
+
 	public static void setInputEnabled(boolean b)
 	{
-		unpressAll();
-		if (!b)
-		{
-			LeapMotionMouse.setXY(0, 0);
-			VirtualMouse.setXY(0, 0);
-			inputEnabled = false;
-			return;
+		if (!isLeapMotionEnabled()) {
+			LeapMotionMouse lmm = LeapMotionMouse.getInstance();
+			unpressAll();
+			if (!b)
+			{
+				lmm.setXY(0, 0);
+				VirtualMouse.setXY(0, 0);
+				inputEnabled = false;
+				return;
+			}
+			inputEnabled = true;
+			lmm.centerCrosshairs();
 		}
-		inputEnabled = true;
-		LeapMotionMouse.centerCrosshairs();
 	}
 
 	private static long suspendMax;
@@ -132,13 +177,15 @@ public class ControllerSettings
 
 	public static void suspendControllerInput(boolean suspend, long maxTicksToSuspend)
 	{
-		if (suspend)
-		{
-			suspendStart = Minecraft.getSystemTime();
-			suspendMax = maxTicksToSuspend;
+		if (isLeapMotionEnabled()) {
+			if (suspend)
+			{
+				suspendStart = Minecraft.getSystemTime();
+				suspendMax = maxTicksToSuspend;
+			}
+			ControllerSettings.suspendControllerInput = suspend;
+			LeapMotionMouse.getInstance().UnpressButtons();
 		}
-		ControllerSettings.suspendControllerInput = suspend;
-		LeapMotionMouse.UnpressButtons();
 	}
 
 	public static boolean isSuspended()

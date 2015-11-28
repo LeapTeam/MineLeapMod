@@ -5,6 +5,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.util.StatCollector;
 
+import net.minecraftforge.fml.client.FMLClientHandler;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
@@ -125,7 +126,7 @@ public class GuiSlider extends GuiButton
 		}
 		if (output != "")
 		{
-			FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
+			FontRenderer fr = FMLClientHandler.instance().getClient().fontRendererObj;
 			String value = ": " + (int) (this.sliderValue * 100.0F);
 			this.displayString = fr.trimStringToWidth(output, this.width - fr.getStringWidth(value)) + value;
 		}
