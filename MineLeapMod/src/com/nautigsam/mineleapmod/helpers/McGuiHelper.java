@@ -1,16 +1,17 @@
 package com.nautigsam.mineleapmod.helpers;
 
-import java.lang.reflect.Method;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+
+import java.lang.reflect.Method;
 
 public class McGuiHelper
 {
 
 	private static Method mouseButtonMove = null;
-	private static Minecraft mc = Minecraft.getMinecraft();
+	private static Minecraft mc = FMLClientHandler.instance().getClient();
 
 	private static final String[] eventButtonNames = McObfuscationHelper.getMcVarNames("eventButton");
 	private static final String[] lastMouseEventNames = McObfuscationHelper.getMcVarNames("lastMouseEvent");

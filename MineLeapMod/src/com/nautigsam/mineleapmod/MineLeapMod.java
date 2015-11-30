@@ -4,19 +4,17 @@ package com.nautigsam.mineleapmod;
  * Main class for Joypad mod. This initializes everything.
  */
 
+import com.nautigsam.mineleapmod.helpers.LogHelper;
 import com.nautigsam.mineleapmod.helpers.ModVersionHelper;
 import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualKeyboard;
-import net.minecraft.client.Minecraft;
+import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
+import com.nautigsam.mineleapmod.minecraftExtensions.JoypadMouseHelper;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-
-import com.nautigsam.mineleapmod.helpers.LogHelper;
-import com.nautigsam.mineleapmod.helpers.McGuiHelper;
-import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
-import com.nautigsam.mineleapmod.minecraftExtensions.JoypadMouseHelper;
 
 
 @Mod(modid = MineLeapMod.MODID, name = MineLeapMod.NAME, version = ModVersionHelper.VERSION + "-" + MineLeapMod.MINVERSION
@@ -47,11 +45,11 @@ public class MineLeapMod
 		LogHelper.Info("init");
 		try
 		{
-			if (!(Minecraft.getMinecraft().mouseHelper instanceof net.minecraft.util.MouseHelper))
+			if (!(FMLClientHandler.instance().getClient().mouseHelper instanceof net.minecraft.util.MouseHelper))
 			{
 				LogHelper.Warn("Replacing Mousehelper that may have already been replaced by another mod!");
 			}
-			Minecraft.getMinecraft().mouseHelper = new JoypadMouseHelper();
+			FMLClientHandler.instance().getClient().mouseHelper = new JoypadMouseHelper();
 			LogHelper.Info("Replaced mousehelper in Minecraft with JoypadMouseHelper");
 		}
 		catch (Exception ex)
@@ -85,15 +83,15 @@ public class MineLeapMod
 			ControllerSettings.modDisabled = true;
 		}
 
-		try
-		{
-			McGuiHelper.create();
-		}
-		catch (Exception ex)
-		{
-			LogHelper.Fatal("Unable to initialize McGuiHelper.  Unable to continue. " + ex.toString());
-			ControllerSettings.modDisabled = true;
-		}
+//		try
+//		{
+//			McGuiHelper.create();
+//		}
+//		catch (Exception ex)
+//		{
+//			LogHelper.Fatal("Unable to initialize McGuiHelper.  Unable to continue. " + ex.toString());
+//			ControllerSettings.modDisabled = true;
+//		}
 
 		modHelper = new ModVersionHelper();
 		modHelper.gameInit();

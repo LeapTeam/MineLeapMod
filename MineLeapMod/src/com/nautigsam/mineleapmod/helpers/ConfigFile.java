@@ -1,19 +1,17 @@
 package com.nautigsam.mineleapmod.helpers;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.common.config.ConfigCategory;
-import net.minecraftforge.common.config.Configuration;
-
-import org.lwjgl.input.Controller;
-
 import com.nautigsam.mineleapmod.ControllerSettings;
 import com.nautigsam.mineleapmod.MineLeapMod;
 import com.nautigsam.mineleapmod.inputevent.ControllerBinding;
 import com.nautigsam.mineleapmod.inputevent.ControllerBinding.BindingOptions;
+import net.minecraftforge.common.config.ConfigCategory;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import org.lwjgl.input.Controller;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConfigFile
 {
@@ -55,9 +53,9 @@ public class ConfigFile
 
 		userName = "unknown";
 
-		if (Minecraft.getMinecraft() != null && Minecraft.getMinecraft().getSession() != null)
+		if (FMLClientHandler.instance().getClient() != null && FMLClientHandler.instance().getClient().thePlayer != null)
 		{
-			userName = Minecraft.getMinecraft().getSession().getUsername();
+			userName = FMLClientHandler.instance().getClient().thePlayer.getName();
 		}
 
 		setSharedProfile(config.get(globalCat, "SharedProfile", false).getBoolean(false));

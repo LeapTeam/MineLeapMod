@@ -19,21 +19,18 @@ buildscript {
 apply plugin: "com.stehno.natives"
 apply plugin: "net.minecraftforge.gradle.forge"
 
-tasks.withType(JavaExec) {
-    systemProperty "java.library.path", file("./libs")
-}
-runClient {
-    // modify the path to your LeapJava.jar
-    systemProperty "java.library.path", leapmotionJarPath
-}
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
     compile "org.lwjgl.lwjgl:lwjgl:2.+"
-    compile files("$leapmotionJarPath/LeapJava.jar")
+    compile files("$projectDir/libs/LeapJava.jar")
+}
+
+jar {
+    from zipTree("$projectDir/libs/LeapJava.jar")
+    exclude "META-INF/*.RSA", "META-INF/*.SF", "META-INF/*.DSA"
 }
 
 sourceSets {
@@ -53,6 +50,10 @@ processResources {
         exclude 'mcmod.info'
     }
 
+}
+
+runClient {
+    //systemProperty "java.library.path", "/usr/lib/Leap"
 }
 
 archivesBaseName = "MineLeapMod"

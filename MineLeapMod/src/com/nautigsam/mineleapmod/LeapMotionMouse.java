@@ -1,81 +1,110 @@
 package com.nautigsam.mineleapmod;
 
+import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Hand;
+import com.nautigsam.mineleapmod.helpers.LogHelper;
+import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
-import com.leapmotion.leap.Controller;
-import com.leapmotion.leap.Listener;
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.HandList;
-import com.leapmotion.leap.Hand;
+import net.minecraftforge.fml.client.FMLClientHandler;
 
-import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
-import com.nautigsam.mineleapmod.helpers.LogHelper;
-import com.nautigsam.mineleapmod.ControllerSettings;
+public final class LeapMotionMouse {
 
-// TODO turn it into a Singleton
-public class LeapMotionMouse {
+	private static volatile LeapMotionMouse instance = null;
 
-	private static Minecraft mc = Minecraft.getMinecraft();
+	private Minecraft mc = FMLClientHandler.instance().getClient();
 
-	private static float LEFT_ROLL_THRESHOLD = 0.25f;
-	private static float LEFT_ROLL_INIT = 0.75f;
-	private static float LEFT_PITCH_THRESHOLD = 0.25f;
-	private static float LEFT_PITCH_INIT = 0.35f;
+	private float LEFT_ROLL_THRESHOLD = 0.25f;
+	private float LEFT_ROLL_INIT = 0.75f;
+	private float LEFT_PITCH_THRESHOLD = 0.25f;
+	private float LEFT_PITCH_INIT = 0.35f;
 
 	// NOTE: not sure if these should be different
-	private static float RIGHT_ROLL_THRESHOLD = 0.25f;
-	private static float RIGHT_ROLL_INIT = -0.55f;
-	private static float RIGHT_PITCH_THRESHOLD = 0.25f;
-	private static float RIGHT_PITCH_INIT = 0.35f;
+	private float RIGHT_ROLL_THRESHOLD = 0.25f;
+	private float RIGHT_ROLL_INIT = -0.55f;
+	private float RIGHT_PITCH_THRESHOLD = 0.25f;
+	private float RIGHT_PITCH_INIT = 0.35f;
 
 	// last delta movement of axis
-	public static float deltaX;
-	public static float deltaY;
+	public float deltaX;
+	public float deltaY;
 
 	// last virtual mouse position
-	public static int x = 0;
-	public static int y = 0;
+	private int x = 0;
+	private int y = 0;
 
 	// values that Minecraft expects when reading the actual mouse
-	public static int mcX = 0;
-	public static int mcY = 0;
+	private int mcX = 0;
+	private int mcY = 0;
 
-	private static long lastAxisReading = 0;
-	private static long guiPollTimeout = 30;
-	private static long gamePollTimeout = 10;
-	public static long last0Reading = 0;
-	public static long lastNon0Reading = 0;
+	private long lastAxisReading = 0;
+	private long guiPollTimeout = 30;
+	private long gamePollTimeout = 10;
+	public long last0Reading = 0;
+	public long lastNon0Reading = 0;
 
-	private static long lastFrameID = 0;
-	private static Controller controller = new Controller();
+	private long lastFrameID = 0;
+	private Controller controller;
 
-	public static Frame nextFrame() {
-		Frame frame = controller.frame();
-
-		// NOTE: should this be done?
-	    // if( frame.id() == lastFrameID ) return;
-	    // lastFrameID = frame.id();
-
-	    return frame;
+	private LeapMotionMouse(Controller leapController) {
+		super();
+		controller = leapController;
 	}
 
-	public static int getmcX() {
+	private static final LeapMotionMouse getInstance(Controller leapController) {
+		if (LeapMotionMouse.instance == null) {
+			synchronized (LeapMotionMouse.class) {
+				if (LeapMotionMouse.instance == null) {
+					LeapMotionMouse.instance = new LeapMotionMouse(leapController);
+				}
+			}
+		}
+		return LeapMotionMouse.instance;
+	}
+
+	public static final LeapMotionMouse getInstance() {
+		return LeapMotionMouse.getInstance(null);
+	}
+
+	public static final void create(Controller leapController) {
+		getInstance(leapController);
+	}
+
+	public static final boolean isCreated() {
+		return LeapMotionMouse.instance != null;
+	}
+
+	public Frame nextFrame() {
+		if (controller != null) {
+			Frame frame = controller.frame();
+
+			// NOTE: should this be done?
+			// if( frame.id() == lastFrameID ) return;
+			// lastFrameID = frame.id();
+
+			return frame;
+		}
+		return null;
+	}
+
+	public int getmcX() {
 		return mcX;
 	}
 
-	public static int getmcY() {
+	public int getmcY() {
 		return mcY;
 	}
 
-	public static int getX() {
+	public int getX() {
 		return x;
 	}
 
-	public static int getY() {
+	public int getY() {
 		return y;
 	}
 
-	private static void leftButtonDown() {
+	private void leftButtonDown() {
 		if (!VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON))
 		{
 			VirtualMouse.setXY(mcX, mcY);
@@ -84,7 +113,7 @@ public class LeapMotionMouse {
 		}
 	}
 
-	private static void leftButtonUp() {
+	private void leftButtonUp() {
 		if (VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON))
 		{
 			boolean onlyIfHeld = true;
@@ -92,11 +121,11 @@ public class LeapMotionMouse {
 		}
 	}
 
-	public static boolean isLeftButtonDown() {
+	public boolean isLeftButtonDown() {
 		return VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON);
 	}
 
-	private static void rightButtonDown() {
+	private void rightButtonDown() {
 		if (!VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON))
 		{
 			VirtualMouse.setXY(mcX, mcY);
@@ -105,7 +134,7 @@ public class LeapMotionMouse {
 		}
 	}
 
-	private static void rightButtonUp() {
+	private void rightButtonUp() {
 		if (VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON))
 		{
 			boolean onlyIfHeld = true;
@@ -113,35 +142,37 @@ public class LeapMotionMouse {
 		}
 	}
 
-	public static boolean isRightButtonDown() {
+	public boolean isRightButtonDown() {
 		return VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON);
 	}
 
-	public static void UnpressButtons() {
+	public void UnpressButtons() {
 		rightButtonUp();
 		leftButtonUp();
 	}
 
-	public static boolean pollNeeded(boolean inGui) {
+	public boolean pollNeeded(boolean inGui) {
 		if (Minecraft.getSystemTime() - lastAxisReading < (inGui ? guiPollTimeout : gamePollTimeout))
 			return false;
 		return true;
 	}
 
-	public static void pollAxis() {
+	public void pollAxis() {
 		pollAxis(mc.currentScreen != null);
 	}
 
 	// pollAxis() will update the x and y position of the
 	// 'mouse' with respect to right hand's movements.
-	public static boolean pollAxis(boolean inGui) {
+	public boolean pollAxis(boolean inGui) {
 		if (!pollNeeded(inGui))
 			return false;
 
 		// TODO: how to handle GUI
 		if (inGui) return false;
 
-		Hand hand =	nextFrame().hands().rightmost();
+		Frame f = nextFrame();
+		if (f == null) return false;
+		Hand hand =	f.hands().rightmost();
 
 		// Right Hand controls camera
 
@@ -166,7 +197,7 @@ public class LeapMotionMouse {
 		return deltaX != 0 || deltaY != 0;
 	}
 
-	public static void centerCrosshairs() {
+	public void centerCrosshairs() {
 		final ScaledResolution scaledResolution = new ScaledResolution(mc, mc.displayWidth,
 				mc.displayHeight);
 
@@ -177,7 +208,7 @@ public class LeapMotionMouse {
 		mcX = x * scaledResolution.getScaleFactor();
 	}
 
-	private static float getModifiedMultiplier(float currentMultiplier) {
+	private float getModifiedMultiplier(float currentMultiplier) {
 		long elapsed = Minecraft.getSystemTime() - last0Reading;
 		if (elapsed < 500)
 		{
@@ -192,7 +223,7 @@ public class LeapMotionMouse {
 		return currentMultiplier;
 	}
 
-	public static float calculateDelta(float delta, float threshold) {
+	public float calculateDelta(float delta, float threshold) {
 		if (Math.abs(delta) < 0.01)
 			return 0;
 
@@ -219,7 +250,7 @@ public class LeapMotionMouse {
 		return finalDelta;
 	}
 
-	public static void setXY(int newX, int newY) {
+	public void setXY(int newX, int newY) {
 		final ScaledResolution scaledResolution = new ScaledResolution(mc, mc.displayWidth,
 				mc.displayHeight);
 
@@ -229,7 +260,7 @@ public class LeapMotionMouse {
 		mcY = mc.displayHeight - (int) (y * scaledResolution.getScaleFactor());
 	}
 
-	public static void updateXY() {
+	public void updateXY() {
 
 		final ScaledResolution scaledResolution = new ScaledResolution(mc, mc.displayWidth,
 				mc.displayHeight);

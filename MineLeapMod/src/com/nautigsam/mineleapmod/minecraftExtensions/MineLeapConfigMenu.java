@@ -1,25 +1,14 @@
 package com.nautigsam.mineleapmod.minecraftExtensions;
 
-import java.util.EnumSet;
-
-import com.nautigsam.mineleapmod.GameRenderHandler;
-import com.nautigsam.mineleapmod.inputevent.ControllerBinding;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiControls;
-import net.minecraft.client.gui.GuiScreen;
-
-import org.lwjgl.input.Controller;
-import org.lwjgl.input.Controllers;
-import org.lwjgl.input.Keyboard;
-
 import com.nautigsam.mineleapmod.ControllerSettings;
+import com.nautigsam.mineleapmod.GameRenderHandler;
 import com.nautigsam.mineleapmod.helpers.LogHelper;
 import com.nautigsam.mineleapmod.helpers.McObfuscationHelper;
-import com.nautigsam.mineleapmod.inputevent.ButtonInputEvent;
+import net.minecraft.client.gui.*;
 
-public class JoypadConfigMenu extends GuiScreen
+import java.io.IOException;
+
+public class MineLeapConfigMenu extends GuiScreen
 {
 	// start of text at top
 	private int labelYStart = 2;
@@ -44,6 +33,7 @@ public class JoypadConfigMenu extends GuiScreen
 	public int bottomButtonWidth = 70;
 
 	private GuiScreen parentScr;
+	private GuiTextField leapLibraryPath;
 
 	private int sensitivity_menuStart;
 	private int sensitivity_gameStart;
@@ -53,7 +43,7 @@ public class JoypadConfigMenu extends GuiScreen
 		control, done, mouseMenu
 	}
 
-	public JoypadConfigMenu(GuiScreen parent)
+	public MineLeapConfigMenu(GuiScreen parent)
 	{
 		super();
 		parentScr = parent;
@@ -76,6 +66,12 @@ public class JoypadConfigMenu extends GuiScreen
 		// controller button
 		addButton(new GuiButton(100, buttonXStart_top, buttonYStart_top + buttonYOffset, controllerButtonWidth, 20,
 				getControllerName()), ControllerSettings.isInputEnabled());
+		buttonYOffset += 30;
+		leapLibraryPath = new GuiTextField(200, getFontRenderer(), buttonXStart_top, buttonYStart_top + buttonYOffset, controllerButtonWidth, 20);
+		leapLibraryPath.setFocused(false);
+		buttonYOffset += 30;
+		addButton(new GuiButton(101, buttonXStart_top, buttonYStart_top + buttonYOffset, bottomButtonWidth, 20,
+				"Refresh"));
 
 		// add bottom buttons
 		int buttonNum = 0;
@@ -93,8 +89,20 @@ public class JoypadConfigMenu extends GuiScreen
 	@Override
 	public void onGuiClosed()
 	{
-		LogHelper.Info("JoypadConfigMenu OnGuiClosed");
+		LogHelper.Info("MineLeapConfigMenu OnGuiClosed");
 		ControllerSettings.suspendControllerInput(false, 0);
+	}
+
+	public void mouseClicked(int a, int b, int c)
+	{
+		leapLibraryPath.mouseClicked(a, b, c);
+		try
+		{
+			super.mouseClicked(a, b, c);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -106,6 +114,9 @@ public class JoypadConfigMenu extends GuiScreen
 		{
 		case 100: // Controller button
 			toggleController();
+			break;
+		case 101: // Refresh button
+			ControllerSettings.enableLeapMotion(leapLibraryPath.getText()); // Load LeapMotion
 			break;
 		case 500: // Done
 			mc.displayGuiScreen(this.parentScr);
@@ -134,9 +145,10 @@ public class JoypadConfigMenu extends GuiScreen
 	{
 		drawDefaultBackground();
 
-		String titleText = String.format("Joypad Mod - %s - %s", sGet("controls.title"),
+		String titleText = String.format("MineLeap Mod - %s - %s", sGet("controls.title"),
 				sGet("controlMenu.toggleInstructions"));
 		this.drawCenteredString(getFontRenderer(), titleText, width / 2, labelYStart, -1);
+		leapLibraryPath.drawTextBox();
 
 		// CONTROLLER NAME BUTTON
 		// PREV NEXT OTHER
@@ -149,15 +161,22 @@ public class JoypadConfigMenu extends GuiScreen
 	 */
 	protected void keyTyped(char c, int code)
 	{
-		if (c == ' ' && ControllerSettings.isConnected())
+		if (leapLibraryPath.isFocused())
 		{
-			toggleController();
+			leapLibraryPath.textboxKeyTyped(c, code);
 		}
 		else
 		{
-			try{
-				super.keyTyped(c, code);}
-			catch(java.io.IOException e){}
+			if (c == ' ' && ControllerSettings.isConnected())
+			{
+				toggleController();
+			}
+			else
+			{
+				try{
+					super.keyTyped(c, code);}
+				catch(java.io.IOException e){}
+			}
 		}
 	}
 
