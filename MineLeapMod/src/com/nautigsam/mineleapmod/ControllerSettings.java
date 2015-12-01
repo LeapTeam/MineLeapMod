@@ -140,18 +140,15 @@ public class ControllerSettings
 		return LeapMotionMouse.getInstance();
 	}
 
-	public static void setInputEnabled(boolean b)
+	public static void setInputEnabled(boolean enable)
 	{
-		if (!isLeapMotionEnabled()) {
-			LeapMotionMouse lmm = LeapMotionMouse.getInstance();
+		LeapMotionMouse lmm = LeapMotionMouse.getInstance();
+		if (!enable) {
+			lmm.setXY(0, 0);
+			VirtualMouse.setXY(0, 0);
+			inputEnabled = false;
+		} else {
 			unpressAll();
-			if (!b)
-			{
-				lmm.setXY(0, 0);
-				VirtualMouse.setXY(0, 0);
-				inputEnabled = false;
-				return;
-			}
 			inputEnabled = true;
 			lmm.centerCrosshairs();
 		}
