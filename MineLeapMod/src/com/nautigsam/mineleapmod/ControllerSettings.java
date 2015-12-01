@@ -142,12 +142,14 @@ public class ControllerSettings
 
 	public static void setInputEnabled(boolean enable)
 	{
-		LeapMotionMouse lmm = LeapMotionMouse.getInstance();
 		if (!enable) {
+			LeapMotionMouse lmm = LeapMotionMouse.getInstance();
 			lmm.setXY(0, 0);
 			VirtualMouse.setXY(0, 0);
 			inputEnabled = false;
-		} else {
+		} else if (isLeapMotionEnabled()) {
+			// only instantiate LeapMotion when the libraries have been loaded
+			LeapMotionMouse lmm = LeapMotionMouse.getInstance();
 			unpressAll();
 			inputEnabled = true;
 			lmm.centerCrosshairs();
