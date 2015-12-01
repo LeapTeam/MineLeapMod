@@ -15,16 +15,21 @@ public final class LeapMotionMouse {
 
 	private Minecraft mc = FMLClientHandler.instance().getClient();
 
+	// Hand angle constants
 	private float LEFT_ROLL_THRESHOLD = 0.25f;
 	private float LEFT_ROLL_INIT = 0.75f;
 	private float LEFT_PITCH_THRESHOLD = 0.25f;
 	private float LEFT_PITCH_INIT = 0.35f;
-
-	// NOTE: not sure if these should be different
 	private float RIGHT_ROLL_THRESHOLD = 0.15f;
 	private float RIGHT_ROLL_INIT = -0.55f;
 	private float RIGHT_PITCH_THRESHOLD = 0.15f;
 	private float RIGHT_PITCH_INIT = 0.35f;
+
+	// hit and release values
+	private static float RIGHT_GRAB_TOLERANCE = 0.0f;
+	private static int positive = 10;
+	private static int fistHandTicks = 0;
+	private static int flatHandTicks = 0;
 
 	// last delta movement of axis
 	public float deltaX;
@@ -86,6 +91,14 @@ public final class LeapMotionMouse {
 			return frame;
 		}
 		return null;
+	}
+
+	public Hand getRightHand() {
+		Frame f = nextFrame();
+		if (f == null) return null;
+		Hand hand =	f.hands().rightmost();
+		if (hand.equals(Hand.invalid())) return null;
+		return hand;
 	}
 
 	public int getmcX() {
@@ -170,9 +183,8 @@ public final class LeapMotionMouse {
 		// TODO: how to handle GUI
 		if (inGui) return false;
 
-		Frame f = nextFrame();
-		if (f == null) return false;
-		Hand hand =	f.hands().rightmost();
+		Hand hand =	getRightHand();
+		if (hand == null) return false;
 
 		// Right Hand controls camera
 
@@ -196,7 +208,42 @@ public final class LeapMotionMouse {
 		deltaY = calculateDelta(pitch, RIGHT_PITCH_THRESHOLD);
 
 		LogHelper.Info("Camera deltaX: " + deltaX + " Camera deltaY: " + deltaY);
-		return deltaX != 0 || deltaY != 0;
+
+		return deltaX != 0 || deltaY != 0 || pollFingers();
+	}
+
+	private boolean pollFingers() {
+		Hand hand =	getRightHand();
+		if (hand == null) return false;
+
+		boolean changeOccurred = false;
+		float grabStrength = hand.grabStrength();
+
+		// 'debouncing' the fist and flat hand gestures
+		if (grabStrength + RIGHT_GRAB_TOLERANCE >= 1.0f) {
+			if (fistHandTicks < positive) fistHandTicks += 1; // prevent overflowing
+		} else {
+			changeOccurred = true;
+			fistHandTicks = 0;
+			leftButtonUp();
+		}
+		if (grabStrength - RIGHT_GRAB_TOLERANCE <= 0.0f) {
+			if (flatHandTicks < positive) flatHandTicks += 1; // prevent overflowing
+		} else {
+			changeOccurred = true;
+			flatHandTicks = 0;
+			rightButtonUp();
+		}
+
+		if (fistHandTicks >= positive) {
+			changeOccurred = true;
+			leftButtonDown();
+		} else if (flatHandTicks >= positive) {
+			changeOccurred = true;
+			rightButtonDown();
+		}
+
+		return changeOccurred;
 	}
 
 	public void centerCrosshairs() {
