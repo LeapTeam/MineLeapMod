@@ -183,6 +183,13 @@ public final class LeapMotionMouse {
 		// TODO: how to handle GUI
 		if (inGui) return false;
 
+		boolean rightHandPoll = pollRightHandAngles() || pollRightFist();
+		boolean leftHandPoll = false;
+
+		return rightHandPoll || leftHandPoll;
+	}
+
+	private boolean pollRightHandAngles() {
 		Hand hand =	getRightHand();
 		if (hand == null) return false;
 
@@ -209,10 +216,10 @@ public final class LeapMotionMouse {
 
 		LogHelper.Info("Camera deltaX: " + deltaX + " Camera deltaY: " + deltaY);
 
-		return deltaX != 0 || deltaY != 0 || pollFingers();
+		return deltaX != 0 || deltaY != 0;
 	}
 
-	private boolean pollFingers() {
+	private boolean pollRightFist() {
 		Hand hand =	getRightHand();
 		if (hand == null) return false;
 
