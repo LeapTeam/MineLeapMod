@@ -21,9 +21,9 @@ public final class LeapMotionMouse {
 	private float LEFT_PITCH_INIT = 0.35f;
 
 	// NOTE: not sure if these should be different
-	private float RIGHT_ROLL_THRESHOLD = 0.25f;
+	private float RIGHT_ROLL_THRESHOLD = 0.15f;
 	private float RIGHT_ROLL_INIT = -0.55f;
-	private float RIGHT_PITCH_THRESHOLD = 0.25f;
+	private float RIGHT_PITCH_THRESHOLD = 0.15f;
 	private float RIGHT_PITCH_INIT = 0.35f;
 
 	// last delta movement of axis
@@ -190,6 +190,8 @@ public final class LeapMotionMouse {
 		roll /= 1.5708f;
 		pitch /= 1.5708f;
 
+		// invert roll (issue with incorrect x-axis rotation)
+		roll = -1 * roll;
 		deltaX = calculateDelta(roll, RIGHT_ROLL_THRESHOLD);
 		deltaY = calculateDelta(pitch, RIGHT_PITCH_THRESHOLD);
 
