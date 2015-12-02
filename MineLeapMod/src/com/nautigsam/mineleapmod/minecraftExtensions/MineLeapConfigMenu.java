@@ -40,7 +40,7 @@ public class MineLeapConfigMenu extends GuiScreen
 
 	private enum ButtonsEnum
 	{
-		control, done, mouseMenu
+		control, refresh, done, mouseMenu
 	}
 
 	public MineLeapConfigMenu(GuiScreen parent)
@@ -68,6 +68,8 @@ public class MineLeapConfigMenu extends GuiScreen
 				getControllerName()), ControllerSettings.isInputEnabled());
 		buttonYOffset += 30;
 		leapLibraryPath = new GuiTextField(200, getFontRenderer(), buttonXStart_top, buttonYStart_top + buttonYOffset, controllerButtonWidth, 20);
+		String path = ControllerSettings.getGameOption("-Global-.LeapLibraryPath");
+		leapLibraryPath.setText(path.equals("false") ? "" : path);
 		leapLibraryPath.setFocused(false);
 		buttonYOffset += 30;
 		addButton(new GuiButton(101, buttonXStart_top, buttonYStart_top + buttonYOffset, bottomButtonWidth, 20,
@@ -119,6 +121,11 @@ public class MineLeapConfigMenu extends GuiScreen
 			ControllerSettings.enableLeapMotion(leapLibraryPath.getText()); // Load LeapMotion
 			break;
 		case 500: // Done
+			String path = leapLibraryPath.getText();
+			if (!path.isEmpty())
+			{
+				ControllerSettings.setGameOption("-Global-.LeapLibraryPath", path);
+			}
 			mc.displayGuiScreen(this.parentScr);
 			break;
 		case 520: // Mouse menu
