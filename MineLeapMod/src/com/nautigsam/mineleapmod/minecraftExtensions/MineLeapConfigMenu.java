@@ -193,7 +193,8 @@ public class MineLeapConfigMenu extends GuiScreen
 
 	private void toggleController()
 	{
-		LogHelper.Info("Enable/disable input");
+		String able = ControllerSettings.isInputEnabled() ? "Disabling" : "Enabling";
+		LogHelper.Info(able + " input");
 		ControllerSettings.setInputEnabled(!ControllerSettings.isInputEnabled());
 		updateControllerButton();
 	}
