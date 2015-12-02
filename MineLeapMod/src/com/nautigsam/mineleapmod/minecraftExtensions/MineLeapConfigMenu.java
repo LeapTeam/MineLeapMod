@@ -35,9 +35,6 @@ public class MineLeapConfigMenu extends GuiScreen
 	private GuiScreen parentScr;
 	private GuiTextField leapLibraryPath;
 
-	private int sensitivity_menuStart;
-	private int sensitivity_gameStart;
-
 	private enum ButtonsEnum
 	{
 		control, refresh, done, mouseMenu
@@ -47,8 +44,6 @@ public class MineLeapConfigMenu extends GuiScreen
 	{
 		super();
 		parentScr = parent;
-		sensitivity_menuStart = ControllerSettings.inMenuSensitivity;
-		sensitivity_gameStart = ControllerSettings.inGameSensitivity;
 	}
 
 	@Override
