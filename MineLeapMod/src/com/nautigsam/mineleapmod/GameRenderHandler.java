@@ -226,24 +226,6 @@ public class GameRenderHandler
 			// controlling
 			if (Minecraft.getSystemTime() - lastInGameTick < 200)
 				continue;
-
-			if (ControllerSettings.loggingLevel > 3)
-			{
-				try
-				{
-					ControllerInputEvent inputEvent = ControllerSettings.controllerUtils.getLastEvent(
-							Controllers.getController(ControllerSettings.joyNo), Controllers.getEventControlIndex());
-					if (inputEvent != null)
-					{
-						LogHelper.Info("Input event " + inputEvent.toString()
-								+ " triggered.  Finding associated binding");
-					}
-				}
-				catch (Exception ex)
-				{
-					LogHelper.Error("Exception caught debugging controller input events: " + ex.toString());
-				}
-			}
 		}
 	}
 
@@ -256,24 +238,6 @@ public class GameRenderHandler
 			// controlling
 			if (Minecraft.getSystemTime() - lastInGuiTick < 100)
 				continue;
-
-			if (ControllerSettings.loggingLevel > 3)
-			{
-				try
-				{
-					ControllerInputEvent inputEvent = ControllerSettings.controllerUtils.getLastEvent(
-							Controllers.getController(ControllerSettings.joyNo), Controllers.getEventControlIndex());
-					if (inputEvent != null)
-					{
-						LogHelper.Info("Input event " + inputEvent.toString()
-								+ " triggered.  Finding associated binding");
-					}
-				}
-				catch (Exception ex)
-				{
-					LogHelper.Error("Exception caught debugging controller input events: " + ex.toString());
-				}
-			}
 
 			mc.inGameHasFocus = true;
 		}

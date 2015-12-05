@@ -23,15 +23,6 @@ public class ControllerSettings
 	private static Controller controller = null;
 	private static Listener connectionListener = null;
 
-	public static List<ControllerBinding> userDefinedBindings;
-
-	public static Map<String, ControllerBinding> joyBindingsMap = null;
-
-	public static int joyNo = -1;
-
-	public static int inGameSensitivity = 25;
-	public static int inMenuSensitivity = 10;
-
 	public static int loggingLevel = 1;
 	public static ControllerUtils controllerUtils;
 
@@ -49,9 +40,6 @@ public class ControllerSettings
 	// controller events to map to an action
 	private static boolean suspendControllerInput = false;
 
-	public static boolean invertYAxis = false;
-	public static boolean grabMouse = false;
-
 	private static ConfigFile config = null;
 
 	public ControllerSettings(File configFile)
@@ -59,7 +47,6 @@ public class ControllerSettings
 		config = new ConfigFile(configFile);
 		config.init();
 		controllerUtils = new ControllerUtils();
-		grabMouse = ControllerSettings.getGameOption("-Global-.GrabMouse").equals("true");
 	}
 
 	public void init()
@@ -142,17 +129,18 @@ public class ControllerSettings
 
 	public static void setInputEnabled(boolean enable)
 	{
-		if (!enable) {
+		// only get instance when the libraries have been loaded
+		if (isLeapMotionEnabled()) {
 			LeapMotionMouse lmm = LeapMotionMouse.getInstance();
-			lmm.setXY(0, 0);
-			VirtualMouse.setXY(0, 0);
-			inputEnabled = false;
-		} else if (isLeapMotionEnabled()) {
-			// only instantiate LeapMotion when the libraries have been loaded
-			LeapMotionMouse lmm = LeapMotionMouse.getInstance();
-			unpressAll();
-			inputEnabled = true;
-			lmm.centerCrosshairs();
+			if (enable) {
+				unpressAll();
+				inputEnabled = true;
+				lmm.centerCrosshairs();
+			} else {
+				lmm.setXY(0, 0);
+				VirtualMouse.setXY(0, 0);
+				inputEnabled = false;
+			}
 		}
 	}
 
@@ -198,9 +186,5 @@ public class ControllerSettings
 	public static void setGameOption(String optionKey, String value)
 	{
 		config.setConfigFileSetting(optionKey, value);
-		if (optionKey.contains("GrabMouse"))
-		{
-			grabMouse = Boolean.parseBoolean(value);
-		}
 	}
 }
