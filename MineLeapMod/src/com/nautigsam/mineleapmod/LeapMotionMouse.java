@@ -15,6 +15,11 @@ import com.nautigsam.mineleapmod.helpers.McObfuscationHelper;
 
 public final class LeapMotionMouse {
 
+	public enum HandType {
+		RIGHT,
+		LEFT,
+	};
+
 	private static volatile LeapMotionMouse instance = null;
 
 	private Minecraft mc = FMLClientHandler.instance().getClient();
@@ -35,8 +40,11 @@ public final class LeapMotionMouse {
 	// hit and release values
 	private static float RIGHT_GRAB_TOLERANCE = 0.0f;
 	private static int positive = 10;
-	private static int fistHandTicks = 0;
-	private static int flatHandTicks = 0;
+	private static int fistRightHandTicks = 0;
+	private static int flatRightHandTicks = 0;
+	private static float LEFT_GRAB_TOLERANCE = 0.0f;
+	private static int fistLeftHandTicks = 0;
+	private static int flatLeftHandTicks = 0;
 
 	// last delta movement of axis
 	public float deltaX;
@@ -225,6 +233,19 @@ public final class LeapMotionMouse {
 		releaseKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindForward));
 	}
 
+	private boolean isJumping() {
+		return VirtualKeyboard.isKeyDown(McObfuscationHelper.keyCode(settings.keyBindJump));
+	}
+
+	private void jump() {
+		if (!isJumping())
+			pressKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindJump));
+	}
+
+	private void stopJumping() {
+		releaseKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindJump));
+	}
+
 	private void pressKeyboardKey(int keycode) {
 		VirtualKeyboard.pressKey(keycode);
 	}
@@ -263,7 +284,7 @@ public final class LeapMotionMouse {
 		if (inGui) return false;
 
 		boolean rightHandPoll = pollRightHandAngles() || pollRightFist();
-		boolean leftHandPoll = pollLeftHandAngles();
+		boolean leftHandPoll = pollLeftHandAngles() || pollLeftFist();
 
 		return rightHandPoll || leftHandPoll;
 	}
@@ -308,26 +329,60 @@ public final class LeapMotionMouse {
 
 		// 'debouncing' the fist and flat hand gestures
 		if (grabStrength + RIGHT_GRAB_TOLERANCE >= 1.0f) {
-			if (fistHandTicks < positive) fistHandTicks += 1; // prevent overflowing
+			if (fistRightHandTicks < positive) fistRightHandTicks += 1; // prevent overflowing
 		} else {
 			changeOccurred = true;
-			fistHandTicks = 0;
+			fistRightHandTicks = 0;
 			leftMouseButtonUp();
 		}
 		if (grabStrength - RIGHT_GRAB_TOLERANCE <= 0.0f) {
-			if (flatHandTicks < positive) flatHandTicks += 1; // prevent overflowing
+			if (flatRightHandTicks < positive) flatRightHandTicks += 1; // prevent overflowing
 		} else {
 			changeOccurred = true;
-			flatHandTicks = 0;
+			flatRightHandTicks = 0;
 			rightMouseButtonUp();
 		}
 
-		if (fistHandTicks >= positive) {
+		if (fistRightHandTicks >= positive) {
 			changeOccurred = true;
 			leftMouseButtonDown();
-		} else if (flatHandTicks >= positive) {
+		} else if (flatRightHandTicks >= positive) {
 			changeOccurred = true;
 			rightMouseButtonDown();
+		}
+
+		return changeOccurred;
+	}
+
+	private boolean pollLeftFist() {
+		Hand hand =	getLeftHand();
+		if (hand == null) return false;
+
+		boolean changeOccurred = false;
+		float grabStrength = hand.grabStrength();
+
+		// 'debouncing' the fist and flat hand gestures
+		if (grabStrength + LEFT_GRAB_TOLERANCE >= 1.0f) {
+			if (fistLeftHandTicks < positive) fistLeftHandTicks += 1; // prevent overflowing
+		} else {
+			changeOccurred = true;
+			fistLeftHandTicks = 0;
+			// TODO: what here?
+		}
+		if (grabStrength - LEFT_GRAB_TOLERANCE <= 0.0f) {
+			if (flatLeftHandTicks < positive) flatLeftHandTicks += 1; // prevent overflowing
+		} else {
+			changeOccurred = true;
+			flatLeftHandTicks = 0;
+			stopJumping();
+		}
+
+		if (fistLeftHandTicks >= positive) {
+			changeOccurred = true;
+			// TODO: what here?
+		} else if (flatLeftHandTicks >= positive) {
+			changeOccurred = true;
+			jump();
 		}
 
 		return changeOccurred;
