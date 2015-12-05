@@ -132,7 +132,7 @@ public final class LeapMotionMouse {
 		return y;
 	}
 
-	private void leftButtonDown() {
+	private void leftMouseButtonDown() {
 		if (!VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON))
 		{
 			VirtualMouse.setXY(mcX, mcY);
@@ -141,7 +141,7 @@ public final class LeapMotionMouse {
 		}
 	}
 
-	private void leftButtonUp() {
+	private void leftMouseButtonUp() {
 		if (VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON))
 		{
 			boolean onlyIfHeld = true;
@@ -153,7 +153,7 @@ public final class LeapMotionMouse {
 		return VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON);
 	}
 
-	private void rightButtonDown() {
+	private void rightMouseButtonDown() {
 		if (!VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON))
 		{
 			VirtualMouse.setXY(mcX, mcY);
@@ -162,7 +162,7 @@ public final class LeapMotionMouse {
 		}
 	}
 
-	private void rightButtonUp() {
+	private void rightMouseButtonUp() {
 		if (VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON))
 		{
 			boolean onlyIfHeld = true;
@@ -239,8 +239,8 @@ public final class LeapMotionMouse {
 	}
 
 	public void UnpressButtons() {
-		rightButtonUp();
-		leftButtonUp();
+		rightMouseButtonUp();
+		leftMouseButtonUp();
 	}
 
 	public boolean pollNeeded(boolean inGui) {
@@ -312,22 +312,22 @@ public final class LeapMotionMouse {
 		} else {
 			changeOccurred = true;
 			fistHandTicks = 0;
-			leftButtonUp();
+			leftMouseButtonUp();
 		}
 		if (grabStrength - RIGHT_GRAB_TOLERANCE <= 0.0f) {
 			if (flatHandTicks < positive) flatHandTicks += 1; // prevent overflowing
 		} else {
 			changeOccurred = true;
 			flatHandTicks = 0;
-			rightButtonUp();
+			rightMouseButtonUp();
 		}
 
 		if (fistHandTicks >= positive) {
 			changeOccurred = true;
-			leftButtonDown();
+			leftMouseButtonDown();
 		} else if (flatHandTicks >= positive) {
 			changeOccurred = true;
-			rightButtonDown();
+			rightMouseButtonDown();
 		}
 
 		return changeOccurred;
