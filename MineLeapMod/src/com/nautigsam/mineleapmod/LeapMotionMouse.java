@@ -202,11 +202,12 @@ public final class LeapMotionMouse {
 	}
 
 	private void holdDownKeyboardKey(int keycode) {
-		VirtualKeyboard.holdKey(keycode, true);
+		VirtualKeyboard.holdKey(keycode, VirtualKeyboard.KeyEvents.KEY_DOWN);
 	}
 
 	private void releaseKeyboardKey(int keycode) {
-		VirtualKeyboard.releaseKey(keycode, false);
+		boolean onlyIfPressed = true;
+		VirtualKeyboard.releaseKey(keycode, onlyIfPressed);
 	}
 
 	public void UnpressButtons() {
