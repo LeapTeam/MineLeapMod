@@ -5,15 +5,20 @@ import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
 import com.nautigsam.mineleapmod.helpers.LogHelper;
 import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
+import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualKeyboard;
+import com.nautigsam.mineleapmod.helpers.McObfuscationHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraft.client.settings.GameSettings;
+
 
 public final class LeapMotionMouse {
 
 	private static volatile LeapMotionMouse instance = null;
 
 	private Minecraft mc = FMLClientHandler.instance().getClient();
+	private GameSettings settings = Minecraft.getMinecraft().gameSettings;
 
 	private float inGameSensitivity = 25f;
 
@@ -169,6 +174,41 @@ public final class LeapMotionMouse {
 		return VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON);
 	}
 
+	private void moveRight() {
+		holdDownKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindRight));
+	}
+
+	private void moveLeft() {
+		holdDownKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindLeft));
+	}
+
+	private void moveForward() {
+		holdDownKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindForward));
+	}
+
+	private void moveBackward() {
+		holdDownKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindBack));
+	}
+
+	private void stopMoving() {
+		releaseKeyboardKey(settings.keyBindRight);
+		releaseKeyboardKey(settings.keyBindLeft);
+		releaseKeyboardKey(settings.keyBindBack);
+		releaseKeyboardKey(settings.keyBindForward);
+	}
+
+	private void pressKeyboardKey(int keycode) {
+		VirtualKeyboard.pressKey(keycode);
+	}
+
+	private void holdDownKeyboardKey(int keycode) {
+		VirtualKeyboard.holdKey(keycode, true);
+	}
+
+	private void releaseKeyboardKey(int keycode) {
+		VirtualKeyboard.releaseKey(keycode, false);
+	}
+
 	public void UnpressButtons() {
 		rightButtonUp();
 		leftButtonUp();
@@ -194,7 +234,7 @@ public final class LeapMotionMouse {
 		if (inGui) return false;
 
 		boolean rightHandPoll = pollRightHandAngles() || pollRightFist();
-		boolean leftHandPoll = false;
+		boolean leftHandPoll = pollLeftHandAngles();
 
 		return rightHandPoll || leftHandPoll;
 	}
@@ -224,7 +264,8 @@ public final class LeapMotionMouse {
 		deltaX = calculateDelta(roll, RIGHT_ROLL_THRESHOLD);
 		deltaY = calculateDelta(pitch, RIGHT_PITCH_THRESHOLD);
 
-		LogHelper.Info("Camera deltaX: " + deltaX + " Camera deltaY: " + deltaY);
+		if (ControllerSettings.loggingLevel > 2)
+			LogHelper.Debug("Camera deltaX: " + deltaX + " Camera deltaY: " + deltaY);
 
 		return deltaX != 0 || deltaY != 0;
 	}
@@ -261,6 +302,49 @@ public final class LeapMotionMouse {
 		}
 
 		return changeOccurred;
+	}
+
+	private boolean pollLeftHandAngles() {
+		Hand hand =	getLeftHand();
+		if (hand == null) return false;
+
+		// Left Hand controls camera
+
+		// Angles:
+		// pitch (angle x-axis) (fingers up/down) [-1.5708,1.5708]
+		// yaw (angle y-axis) (sideways rotation) [0,6.28319]
+		// roll (angle z-axis) (thumbs up/down) [-1.5708,1.5708]
+
+		float pitch = hand.direction().pitch();
+		float roll = hand.palmNormal().roll();
+		// substract the initial/rest zone
+		roll -= LEFT_ROLL_INIT;
+		pitch -= LEFT_PITCH_INIT;
+		// NOTE: normalizing to 1.0, not sure if necessary
+		roll /= 1.5708f;
+		pitch /= 1.5708f;
+
+		boolean moved = false;
+		if (roll > LEFT_ROLL_THRESHOLD) {
+			moveLeft();
+			moved = true;
+		} else if (roll < LEFT_ROLL_THRESHOLD) {
+			moveRight();
+			moved = true;
+		}
+
+		if (pitch > LEFT_PITCH_THRESHOLD) {
+			moveBackward();
+			moved = true;
+		} else if (pitch < LEFT_PITCH_THRESHOLD) {
+			moveForward();
+			moved = true;
+		}
+
+		// make sure to stop any movement
+		if (!moved) stopMoving();
+
+		return moved;
 	}
 
 	public void centerCrosshairs() {
