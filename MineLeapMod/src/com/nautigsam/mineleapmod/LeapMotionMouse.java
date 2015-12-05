@@ -3,15 +3,15 @@ package com.nautigsam.mineleapmod;
 import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
-import com.nautigsam.mineleapmod.helpers.LogHelper;
-import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
-import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualKeyboard;
-import com.nautigsam.mineleapmod.helpers.McObfuscationHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraft.client.settings.GameSettings;
 
+import com.nautigsam.mineleapmod.helpers.LogHelper;
+import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
+import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualKeyboard;
+import com.nautigsam.mineleapmod.helpers.McObfuscationHelper;
 
 public final class LeapMotionMouse {
 
@@ -23,10 +23,10 @@ public final class LeapMotionMouse {
 	private float inGameSensitivity = 25f;
 
 	// Hand angle constants
-	private float LEFT_ROLL_THRESHOLD = 0.25f;
+	private float LEFT_ROLL_THRESHOLD = 0.35f;
 	private float LEFT_ROLL_INIT = 0.75f;
-	private float LEFT_PITCH_THRESHOLD = 0.25f;
-	private float LEFT_PITCH_INIT = 0.35f;
+	private float LEFT_PITCH_THRESHOLD = 0.15f;
+	private float LEFT_PITCH_INIT = 0.40f;
 	private float RIGHT_ROLL_THRESHOLD = 0.15f;
 	private float RIGHT_ROLL_INIT = -0.55f;
 	private float RIGHT_PITCH_THRESHOLD = 0.15f;
@@ -149,7 +149,7 @@ public final class LeapMotionMouse {
 		}
 	}
 
-	public boolean isLeftButtonDown() {
+	public boolean isLeftMouseButtonDown() {
 		return VirtualMouse.isButtonDown(VirtualMouse.LEFT_BUTTON);
 	}
 
@@ -170,31 +170,59 @@ public final class LeapMotionMouse {
 		}
 	}
 
-	public boolean isRightButtonDown() {
+	public boolean isRightMouseButtonDown() {
 		return VirtualMouse.isButtonDown(VirtualMouse.RIGHT_BUTTON);
 	}
 
+	public boolean isRightButtonDown() {
+		return VirtualKeyboard.isKeyDown(McObfuscationHelper.keyCode(settings.keyBindRight));
+	}
+
+	public boolean isLeftButtonDown() {
+		return VirtualKeyboard.isKeyDown(McObfuscationHelper.keyCode(settings.keyBindLeft));
+	}
+
+	public boolean isForwardButtonDown() {
+		return VirtualKeyboard.isKeyDown(McObfuscationHelper.keyCode(settings.keyBindForward));
+	}
+
+	public boolean isBackwardButtonDown() {
+		return VirtualKeyboard.isKeyDown(McObfuscationHelper.keyCode(settings.keyBindBack));
+	}
+
 	private void moveRight() {
-		holdDownKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindRight));
+		if (isLeftButtonDown())
+			releaseKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindLeft));
+		if (!isRightButtonDown())
+			pressKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindRight));
 	}
 
 	private void moveLeft() {
-		holdDownKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindLeft));
+		if (isRightButtonDown())
+			releaseKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindRight));
+		if (!isLeftButtonDown())
+			pressKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindLeft));
 	}
 
 	private void moveForward() {
-		holdDownKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindForward));
+		if (isBackwardButtonDown())
+			releaseKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindBack));
+		if (!isForwardButtonDown())
+			pressKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindForward));
 	}
 
 	private void moveBackward() {
-		holdDownKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindBack));
+		if (isForwardButtonDown())
+			releaseKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindForward));
+		if (!isBackwardButtonDown())
+			pressKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindBack));
 	}
 
 	private void stopMoving() {
-		releaseKeyboardKey(settings.keyBindRight);
-		releaseKeyboardKey(settings.keyBindLeft);
-		releaseKeyboardKey(settings.keyBindBack);
-		releaseKeyboardKey(settings.keyBindForward);
+		releaseKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindRight));
+		releaseKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindLeft));
+		releaseKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindBack));
+		releaseKeyboardKey(McObfuscationHelper.keyCode(settings.keyBindForward));
 	}
 
 	private void pressKeyboardKey(int keycode) {
@@ -332,7 +360,7 @@ public final class LeapMotionMouse {
 		if (roll > LEFT_ROLL_THRESHOLD) {
 			moveLeft();
 			moved = true;
-		} else if (roll < LEFT_ROLL_THRESHOLD) {
+		} else if (roll < -1 * LEFT_ROLL_THRESHOLD) {
 			moveRight();
 			moved = true;
 		}
@@ -340,7 +368,7 @@ public final class LeapMotionMouse {
 		if (pitch > LEFT_PITCH_THRESHOLD) {
 			moveBackward();
 			moved = true;
-		} else if (pitch < LEFT_PITCH_THRESHOLD) {
+		} else if (pitch < -1 * LEFT_PITCH_THRESHOLD) {
 			moveForward();
 			moved = true;
 		}
