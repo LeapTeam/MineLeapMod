@@ -23,7 +23,7 @@ public final class LeapMotionMouse {
 	private static volatile LeapMotionMouse instance = null;
 
 	private Minecraft mc = FMLClientHandler.instance().getClient();
-	private GameSettings settings = Minecraft.getMinecraft().gameSettings;
+	private GameSettings settings = mc.gameSettings;
 
 	private float inGameSensitivity = 25f;
 
