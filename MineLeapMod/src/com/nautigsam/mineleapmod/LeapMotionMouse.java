@@ -306,7 +306,10 @@ public final class LeapMotionMouse {
 
 	private boolean pollLeftHandAngles() {
 		Hand hand =	getLeftHand();
-		if (hand == null) return false;
+		if (hand == null) {
+			stopMoving();
+			return false;
+		}
 
 		// Left Hand controls camera
 
