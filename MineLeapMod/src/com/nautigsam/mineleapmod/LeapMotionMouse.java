@@ -97,7 +97,15 @@ public final class LeapMotionMouse {
 		Frame f = nextFrame();
 		if (f == null) return null;
 		Hand hand =	f.hands().rightmost();
-		if (hand.equals(Hand.invalid())) return null;
+		if (!hand.isValid()) return null;
+		return hand;
+	}
+
+	public Hand getLeftHand() {
+		Frame f = nextFrame();
+		if (f == null) return null;
+		Hand hand =	f.hands().leftmost();
+		if (!hand.isValid()) return null;
 		return hand;
 	}
 
