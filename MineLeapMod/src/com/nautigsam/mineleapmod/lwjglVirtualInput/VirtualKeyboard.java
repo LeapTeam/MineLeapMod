@@ -10,6 +10,11 @@ import com.nautigsam.mineleapmod.helpers.LogHelper;
 
 public class VirtualKeyboard
 {
+	public enum KeyEvents {
+		KEY_DOWN,
+		KEY_UP,
+	};
+
 	private static Field keyDownField;
 	private static Field keyBufferField;
 	private static Byte[] keyState;
@@ -50,8 +55,12 @@ public class VirtualKeyboard
 			if (ControllerSettings.loggingLevel > 1)
 				LogHelper.Info("Pressing key " + Keyboard.getKeyName(keycode));
 			keyState[keycode] = 1;
-			holdKey(keycode, true);
+			holdKey(keycode, KeyEvents.KEY_DOWN);
 		}
+	}
+
+	public static boolean isKeyDown(int keycode) {
+		return keyState[keycode] == 1;
 	}
 
 	// send a release key event to the keyboard buffer
@@ -69,11 +78,11 @@ public class VirtualKeyboard
 				LogHelper.Info("Releasing key " + Keyboard.getKeyName(keycode));
 			keyHelper(keycode, 0);
 			keyState[keycode] = 0;
-			holdKey(keycode, false);
+			holdKey(keycode, KeyEvents.KEY_UP);
 		}
 	}
 
-	public static void holdKey(int keycode, boolean down)
+	public static void holdKey(int keycode, KeyEvents eventType)
 	{
 		if (!checkCreated())
 		{
@@ -91,7 +100,7 @@ public class VirtualKeyboard
 		{
 			try
 			{
-				byte b = (byte) (down ? 1 : 0);
+				byte b = (byte) (eventType == KeyEvents.KEY_DOWN ? 1 : 0);
 				((ByteBuffer) keyDownField.get(null)).put(keycode, b);
 			}
 			catch (Exception ex)

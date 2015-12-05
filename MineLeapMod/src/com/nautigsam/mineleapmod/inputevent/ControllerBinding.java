@@ -1,14 +1,16 @@
 package com.nautigsam.mineleapmod.inputevent;
 
-import com.nautigsam.mineleapmod.helpers.LogHelper;
-import com.nautigsam.mineleapmod.inputevent.ControllerInputEvent.EventType;
-import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualKeyboard;
-import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
-import net.minecraft.client.Minecraft;
-import org.lwjgl.input.Keyboard;
-
 import java.util.EnumSet;
 import java.util.Locale;
+
+import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualKeyboard;
+import net.minecraft.client.Minecraft;
+
+import org.lwjgl.input.Keyboard;
+
+import com.nautigsam.mineleapmod.helpers.LogHelper;
+import com.nautigsam.mineleapmod.inputevent.ControllerInputEvent.EventType;
+import com.nautigsam.mineleapmod.lwjglVirtualInput.VirtualMouse;
 
 public class ControllerBinding
 {
@@ -203,7 +205,7 @@ public class ControllerBinding
 				}
 				else if (bindingOptions.contains(BindingOptions.REPEAT_IF_HELD))
 				{
-					VirtualKeyboard.holdKey(i, true);
+					VirtualKeyboard.holdKey(i, VirtualKeyboard.KeyEvents.KEY_DOWN);
 				}
 			}
 			if (bRet)
