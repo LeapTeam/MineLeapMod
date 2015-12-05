@@ -14,7 +14,7 @@ public class JoypadMouseHelper extends MouseHelper
 	@Override
 	public void grabMouseCursor()
 	{
-		if (ControllerSettings.isInputEnabled() && !ControllerSettings.grabMouse)
+		if (ControllerSettings.isInputEnabled())
 		{
 			// VirtualMouse.setGrabbed(true);
 			return;
@@ -29,7 +29,7 @@ public class JoypadMouseHelper extends MouseHelper
 	@Override
 	public void ungrabMouseCursor()
 	{
-		if (ControllerSettings.isInputEnabled() && !ControllerSettings.grabMouse)
+		if (ControllerSettings.isInputEnabled())
 		{
 			// VirtualMouse.setGrabbed(false);
 			return;

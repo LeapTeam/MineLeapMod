@@ -52,6 +52,7 @@ processResources {
 
 }
 
+runClient.outputs.upToDateWhen {false}
 runClient {
     //systemProperty "java.library.path", "/usr/lib/Leap"
 }

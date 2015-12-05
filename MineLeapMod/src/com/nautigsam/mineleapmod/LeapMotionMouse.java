@@ -15,6 +15,8 @@ public final class LeapMotionMouse {
 
 	private Minecraft mc = FMLClientHandler.instance().getClient();
 
+	private float inGameSensitivity = 25f;
+
 	// Hand angle constants
 	private float LEFT_ROLL_THRESHOLD = 0.25f;
 	private float LEFT_ROLL_INIT = 0.75f;
@@ -287,7 +289,7 @@ public final class LeapMotionMouse {
 			return 0;
 		}
 
-		float cameraMultiplier = ControllerSettings.inGameSensitivity;
+		float cameraMultiplier = inGameSensitivity;
 		if (Math.abs(delta) < Math.abs(threshold / 2))
 			cameraMultiplier *= 0.3;
 		else if (Math.abs(delta) < Math.abs(threshold))
