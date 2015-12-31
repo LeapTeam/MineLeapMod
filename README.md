@@ -21,3 +21,8 @@ On Windows, pick the folder corresponding to yout architecture:
 On MacOS and Linux, the libraries should be in the `lib` folder. It may depends on your installation method.
 
 Once you entered the path to libraries, click the **Refresh** button. This will load the libraries, and the LeapMotion device should be detected.
+
+About this project
+------------------
+
+This mod has been developed for a project in Interfaces Technologies at University of Helsinki. Here is the linked report [on Dropbox](https://www.dropbox.com/s/rwgd9fq38r102e4/controlling-minecraft-leap-public.pdf?dl=0).
